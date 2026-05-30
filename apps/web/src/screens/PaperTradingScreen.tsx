@@ -159,7 +159,7 @@ export function PaperTradingScreen({ seed }: PaperTradingScreenProps) {
           <span className="section-kicker">Paper Trading</span>
           <h2>模拟盘</h2>
           <p className="section-copy">
-            这里是纸面交易模拟盘。系统只使用虚拟账户和公开行情，不接 API Key、不连接真实账户、不执行真实下单。
+            这是纸面交易模拟盘，不接 API Key、不连接真实账户、不执行真实下单。系统只使用虚拟账户和公开行情。
           </p>
         </div>
       </section>
@@ -190,6 +190,7 @@ export function PaperTradingScreen({ seed }: PaperTradingScreenProps) {
             <h3>使用该机会模拟建仓</h3>
             <span>{seed.symbol}</span>
           </div>
+          <p className="paper-note">成交价基于公开行情 markPrice / ticker fallback，若实时行情不可用，可能使用 fallback 数据用于演示。</p>
           <div className="paper-opportunity-summary">
             <div>
               <strong>{seed.legA.exchange}</strong>

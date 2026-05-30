@@ -1211,3 +1211,14 @@ select:focus-visible {
     width: 100%;
   }
 }
+
+
+.paper-note {
+  margin: 18px 24px 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 16px;
+  color: var(--muted);
+  background: var(--warning-soft);
+  line-height: 1.55;
+}

@@ -4,3 +4,12 @@ dist
 .DS_Store
 coverage
 *.tsbuildinfo
+.env.*
+*.key
+*.pem
+*secret*
+*.sqlite
+*.db
+apps/server/data/
+store.json
+logs/

@@ -20,7 +20,7 @@ Funding Arbitrage Console 是一个 Phase 1 演示版资金费率套利工作台
 - 真实下单
 - 数据库
 - WebSocket
-- 模拟账户 / 账本
+- 完整模拟交易执行 / 自动账本编排
 - 通知中心
 
 ## 技术栈
@@ -111,11 +111,30 @@ Render Web Service 参数：
 
 前端构建依赖 `@types/react`、`@types/react-dom`，并在 `apps/web/tsconfig.json` 中启用 `jsx: react-jsx` 与 DOM lib。`apps/web/src/vite-env.d.ts` 提供 Vite client 类型引用。
 
+
+## Phase 2 Paper API 骨架
+
+Phase 2 当前只加入模拟盘后端数据层和 API 骨架，不包含真实交易、不读取 API Key、不调用交易所私有接口。
+
+- 当前使用 JSON store 持久化本地单用户模拟盘数据。
+- 数据文件路径：`apps/server/data/store.json`。
+- `apps/server/data/store.json` 不进 git，首次启动 server 时会自动生成。
+- 默认账户：`paper-default`，初始权益 `10000 USDT`。
+- 当前已提供 paper account 查询、reset、持仓/成交/资金费结算记录/账本查询 API。
+- 建仓 / 平仓 / 资金费自动结算 / 自动强平将在后续 P2-T3 / P2-T4 实现。
+
 ## API 列表
 
 - `GET /api/health`
 - `GET /api/funding-rates?includeLowLiquidity=true|false`
 - `GET /api/opportunities?sort=spread|netEdge&threshold=number&includeLowLiquidity=true|false`
+- `GET /api/paper/account`
+- `POST /api/paper/reset`
+- `GET /api/paper/positions`
+- `GET /api/paper/positions/open`
+- `GET /api/paper/trades`
+- `GET /api/paper/funding-settlements`
+- `GET /api/paper/ledger`
 
 ## 演示路径
 

@@ -17,7 +17,8 @@ const titleByTab: Record<ActiveTab, string> = {
   paper: "Paper Trading",
   monitor: "Monitor & Alerts",
   liveAccount: "Live Account",
-  education: "Education Layer"
+  education: "Education Layer",
+  aiCoach: "AI Coach"
 };
 
 export function AppShell({ activeTab, children, onNavigate }: AppShellProps) {

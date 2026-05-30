@@ -224,6 +224,23 @@ curl 'http://localhost:3001/api/mining/opportunities?limit=20&includeTraps=false
 
 
 
+
+## Agent-T0 AI 套利教练
+
+当前新增最小版 rule-based AI Coach Agent，用于比赛演示中的 Agent 层表达。
+
+已实现：
+
+- 后端 API：POST /api/agent/explain。
+- 支持解释机会、解释陷阱、生成模拟计划、生成复盘总结。
+- 前端“AI 教练”页面提供四个示例按钮，并展示 title、summary、riskLevel、bullets、nextActions 和 disclaimer。
+- 当前不接 OpenAI / Claude / Gemini SDK，不读取 LLM_API_KEY。
+- Agent 只做学习和模拟解释，不下单、不连接真实账户、不提供投资建议。
+
+示例：
+
+curl -X POST http://localhost:3001/api/agent/explain -H "Content-Type: application/json" -d "{\"mode\":\"opportunity\",\"payload\":{\"symbol\":\"BTC/USDT:USDT\",\"netEdge\":0.0002,\"strategyType\":\"cross_exchange_perp\"}}"
+
 ## Phase 3 轻量监控预览
 
 当前 Phase 3 只提供前端本地监控演示，不新增后端 API，不使用 WebSocket，也不发送外部通知。

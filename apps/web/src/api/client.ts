@@ -1,4 +1,6 @@
 import type {
+  AgentMode,
+  AgentResponse,
   FundingRatesResponse,
   MiningResponse,
   FundingSettlement,
@@ -26,6 +28,22 @@ type MiningParams = {
   limit?: number;
   includeTraps?: boolean;
 };
+
+export async function explainWithAgent(
+  mode: AgentMode,
+  payload: Record<string, unknown>
+): Promise<AgentResponse> {
+  const response = await request<AgentResponse>(
+    "/api/agent/explain",
+    jsonRequest({ mode, payload })
+  );
+
+  if (!response.ok) {
+    throw new Error(response.error ?? "请求失败：agent API 返回错误");
+  }
+
+  return response;
+}
 
 export async function fetchOpportunities(
   params: OpportunitiesParams

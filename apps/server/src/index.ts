@@ -7,6 +7,7 @@ import { healthRouter } from "./routes/health.js";
 import { opportunitiesRouter } from "./routes/opportunities.js";
 import { miningRouter } from "./routes/mining.js";
 import { paperRouter } from "./routes/paper.js";
+import { agentRouter } from "./routes/agent.js";
 import { initializeStore } from "./data/store.js";
 import { startSettlementJob } from "./jobs/settlementJob.js";
 import { startLiquidationJob } from "./jobs/liquidationJob.js";
@@ -23,6 +24,7 @@ app.use("/api", fundingRouter);
 app.use("/api", opportunitiesRouter);
 app.use("/api/mining", miningRouter);
 app.use("/api/paper", paperRouter);
+app.use("/api/agent", agentRouter);
 
 if (process.env.NODE_ENV === "production" && existsSync(webIndexPath)) {
   app.use(express.static(webDistPath));

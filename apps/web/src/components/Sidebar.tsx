@@ -38,6 +38,12 @@ const navGroups: NavGroup[] = [
       { label: "监控 / 告警", tab: "monitor", hint: "Monitor" },
       { label: "真实账户", tab: "liveAccount", hint: "Coming Soon" }
     ]
+  },
+  {
+    title: "Agent 层",
+    items: [
+      { label: "AI 教练", tab: "aiCoach", hint: "Rule-based" }
+    ]
   }
 ];
 

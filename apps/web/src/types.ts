@@ -72,7 +72,8 @@ export type ActiveTab =
   | "paper"
   | "monitor"
   | "liveAccount"
-  | "education";
+  | "education"
+  | "aiCoach";
 
 export type CalculatorSeed = {
   symbol: string;
@@ -212,4 +213,29 @@ export type MiningResponse = {
   updatedAt: string;
   errors: Record<string, string>;
   data: MinedOpportunity[];
+};
+
+export type AgentMode = "opportunity" | "trap" | "simulation_plan" | "paper_summary";
+
+export type AgentResult = {
+  title: string;
+  summary: string;
+  bullets: string[];
+  riskLevel: "low" | "medium" | "high";
+  nextActions: string[];
+  disclaimer: string;
+};
+
+export type AgentSource = "rule_based" | "llm";
+
+export type AgentProvider = "mimo" | "openai" | "openai_compatible";
+
+export type AgentResponse = {
+  ok: boolean;
+  source: AgentSource;
+  provider?: AgentProvider;
+  model?: string;
+  warning?: string;
+  data: AgentResult;
+  error?: string;
 };

@@ -2,6 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { AppShell } from "./components/AppShell";
+import { AICoachScreen } from "./screens/AICoachScreen";
 import { RiskModal } from "./components/RiskModal";
 import { CalculatorScreen } from "./screens/CalculatorScreen";
 import { EducationScreen } from "./screens/EducationScreen";
@@ -98,6 +99,7 @@ function App() {
         {activeTab === "monitor" ? <MonitorScreen /> : null}
         {activeTab === "liveAccount" ? <LiveAccountComingSoon /> : null}
         {activeTab === "education" ? <EducationScreen /> : null}
+        {activeTab === "aiCoach" ? <AICoachScreen /> : null}
       </AppShell>
     </>
   );

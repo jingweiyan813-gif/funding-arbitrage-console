@@ -1,3 +1,4 @@
+import { config as loadEnv } from "dotenv";
 import express, { type Request, type Response } from "express";
 import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -7,6 +8,7 @@ import { healthRouter } from "./routes/health.js";
 import { opportunitiesRouter } from "./routes/opportunities.js";
 import { miningRouter } from "./routes/mining.js";
 import { paperRouter } from "./routes/paper.js";
+import { agentRouter } from "./routes/agent.js";
 import { initializeStore } from "./data/store.js";
 import { startSettlementJob } from "./jobs/settlementJob.js";
 import { startLiquidationJob } from "./jobs/liquidationJob.js";
@@ -17,12 +19,15 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const webDistPath = resolve(__dirname, "../../web/dist");
 const webIndexPath = resolve(webDistPath, "index.html");
 
+loadEnv({ path: resolve(__dirname, "../../../.env"), quiet: true });
+
 app.use(express.json());
 app.use("/api", healthRouter);
 app.use("/api", fundingRouter);
 app.use("/api", opportunitiesRouter);
 app.use("/api/mining", miningRouter);
 app.use("/api/paper", paperRouter);
+app.use("/api/agent", agentRouter);
 
 if (process.env.NODE_ENV === "production" && existsSync(webIndexPath)) {
   app.use(express.static(webDistPath));

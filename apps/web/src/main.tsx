@@ -1,13 +1,17 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+import { Header } from "./components/Header";
+import { RiskBanner } from "./components/RiskBanner";
+import { ScannerScreen } from "./screens/ScannerScreen";
 import "./style.css";
 
 function App() {
   return (
-    <main>
-      <h1>Funding Arbitrage Console</h1>
-      <p>Phase 1 Dashboard</p>
-    </main>
+    <>
+      <Header />
+      <RiskBanner />
+      <ScannerScreen />
+    </>
   );
 }
 

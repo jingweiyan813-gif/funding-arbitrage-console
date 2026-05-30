@@ -59,7 +59,7 @@ export type FundingRatesResponse = {
   data: FundingRate[];
 };
 
-export type ActiveTab = "scanner" | "calculator" | "liquidation";
+export type ActiveTab = "scanner" | "calculator" | "liquidation" | "paper";
 
 export type CalculatorSeed = {
   symbol: string;
@@ -84,3 +84,70 @@ export type LiquidationSeed = {
   margin: number;
   maintMarginRate: number;
 };
+
+
+export type PaperAccount = {
+  id: string;
+  equity: number;
+  baseCurrency: "USDT";
+  realizedPnl: number;
+  totalFundingReceived: number;
+  totalFees: number;
+};
+
+export type PaperPosition = {
+  id: string;
+  accountId: string;
+  exchange: string;
+  symbol: string;
+  side: Side;
+  notional: number;
+  leverage: number;
+  entryPrice: number;
+  markPrice: number;
+  margin: number;
+  maintMarginRate: number;
+  liqPrice: number;
+  status: "open" | "closed" | "liquidated";
+  openedAt: number;
+  closedAt?: number;
+  unrealizedPnl?: number;
+};
+
+export type PaperTrade = {
+  id: string;
+  accountId: string;
+  positionId: string;
+  type: "open" | "close" | "liquidation";
+  side: Side;
+  symbol: string;
+  exchange: string;
+  price: number;
+  notional: number;
+  fee: number;
+  slippageCost: number;
+  realizedPnl: number;
+  createdAt: number;
+};
+
+export type FundingSettlement = {
+  id: string;
+  accountId: string;
+  positionId: string;
+  symbol: string;
+  exchange: string;
+  rate: number;
+  amount: number;
+  createdAt: number;
+};
+
+export type LedgerEvent = {
+  id: string;
+  type: "trade" | "funding";
+  time: number;
+  title: string;
+  amount: number;
+  meta?: Record<string, unknown>;
+};
+
+export type PaperSeed = ArbOpportunity;

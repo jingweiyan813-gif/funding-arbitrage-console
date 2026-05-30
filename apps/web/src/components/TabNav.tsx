@@ -3,7 +3,8 @@ import type { ActiveTab } from "../types";
 const tabs: Array<{ id: ActiveTab; label: string }> = [
   { id: "scanner", label: "Scanner" },
   { id: "calculator", label: "Calculator" },
-  { id: "liquidation", label: "Liquidation" }
+  { id: "liquidation", label: "Liquidation" },
+  { id: "paper", label: "Paper Trading" }
 ];
 
 type TabNavProps = {
@@ -13,7 +14,7 @@ type TabNavProps = {
 
 export function TabNav({ activeTab, onChange }: TabNavProps) {
   return (
-    <nav className="tab-nav" aria-label="Phase 1 views">
+    <nav className="tab-nav" aria-label="Funding Arbitrage views">
       {tabs.map((tab) => (
         <button
           className={activeTab === tab.id ? "active" : ""}

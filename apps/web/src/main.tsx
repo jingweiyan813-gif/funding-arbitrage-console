@@ -7,12 +7,14 @@ import { RiskBanner } from "./components/RiskBanner";
 import { TabNav } from "./components/TabNav";
 import { CalculatorScreen } from "./screens/CalculatorScreen";
 import { LiquidationScreen } from "./screens/LiquidationScreen";
+import { PaperTradingScreen } from "./screens/PaperTradingScreen";
 import { ScannerScreen } from "./screens/ScannerScreen";
 import type {
   ActiveTab,
   ArbOpportunity,
   CalculatorSeed,
-  LiquidationSeed
+  LiquidationSeed,
+  PaperSeed
 } from "./types";
 import "./style.css";
 
@@ -23,6 +25,7 @@ function App() {
   );
   const [liquidationSeed, setLiquidationSeed] =
     useState<LiquidationSeed | null>(null);
+  const [paperSeed, setPaperSeed] = useState<PaperSeed | null>(null);
 
   function handleCalculate(opportunity: ArbOpportunity) {
     setCalculatorSeed({
@@ -54,6 +57,11 @@ function App() {
     setActiveTab("liquidation");
   }
 
+  function handlePaperTrade(opportunity: ArbOpportunity) {
+    setPaperSeed(opportunity);
+    setActiveTab("paper");
+  }
+
   return (
     <>
       <RiskModal />
@@ -64,6 +72,7 @@ function App() {
         <ScannerScreen
           onCalculate={handleCalculate}
           onLiquidation={handleLiquidation}
+          onPaperTrade={handlePaperTrade}
         />
       ) : null}
       {activeTab === "calculator" ? (
@@ -77,6 +86,9 @@ function App() {
           key={liquidationSeed ? JSON.stringify(liquidationSeed) : "default"}
           seed={liquidationSeed}
         />
+      ) : null}
+      {activeTab === "paper" ? (
+        <PaperTradingScreen seed={paperSeed} />
       ) : null}
     </>
   );

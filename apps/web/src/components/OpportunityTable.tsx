@@ -5,12 +5,14 @@ type OpportunityTableProps = {
   opportunities: ArbOpportunity[];
   onCalculate?: (opportunity: ArbOpportunity) => void;
   onLiquidation?: (opportunity: ArbOpportunity) => void;
+  onPaperTrade?: (opportunity: ArbOpportunity) => void;
 };
 
 export function OpportunityTable({
   opportunities,
   onCalculate,
-  onLiquidation
+  onLiquidation,
+  onPaperTrade
 }: OpportunityTableProps) {
   if (opportunities.length === 0) {
     return (
@@ -112,6 +114,12 @@ export function OpportunityTable({
                     type="button"
                   >
                     看爆仓
+                  </button>
+                  <button
+                    onClick={() => onPaperTrade?.(opportunity)}
+                    type="button"
+                  >
+                    模拟建仓
                   </button>
                 </div>
               </td>

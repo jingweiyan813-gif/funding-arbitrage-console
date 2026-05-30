@@ -15,11 +15,13 @@ const AUTO_REFRESH_MS = 30_000;
 type ScannerScreenProps = {
   onCalculate: (opportunity: ArbOpportunity) => void;
   onLiquidation: (opportunity: ArbOpportunity) => void;
+  onPaperTrade: (opportunity: ArbOpportunity) => void;
 };
 
 export function ScannerScreen({
   onCalculate,
-  onLiquidation
+  onLiquidation,
+  onPaperTrade
 }: ScannerScreenProps) {
   const [sort, setSort] = useState<SortMode>("spread");
   const [includeLowLiquidity, setIncludeLowLiquidity] = useState(false);
@@ -212,6 +214,7 @@ export function ScannerScreen({
           <OpportunityTable
             onCalculate={onCalculate}
             onLiquidation={onLiquidation}
+            onPaperTrade={onPaperTrade}
             opportunities={opportunities}
           />
         )}

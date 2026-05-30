@@ -106,6 +106,11 @@ Render Web Service 参数：
 - Start Command: `npm start`
 - Environment Variable: `PORT` 由 Render 自动注入，应用会读取 `process.env.PORT`
 
+
+### Render React/JSX 类型说明
+
+前端构建依赖 `@types/react`、`@types/react-dom`，并在 `apps/web/tsconfig.json` 中启用 `jsx: react-jsx` 与 DOM lib。`apps/web/src/vite-env.d.ts` 提供 Vite client 类型引用。
+
 ## API 列表
 
 - `GET /api/health`

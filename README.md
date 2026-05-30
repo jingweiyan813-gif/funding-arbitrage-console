@@ -74,6 +74,38 @@ npm test
 npm run build
 ```
 
+
+## 本地生产构建
+
+生产模式由 Express 同时提供 `/api/*` 接口和 `apps/web/dist` 前端静态文件，非 `/api` 路由会 fallback 到 `index.html`。
+
+```bash
+npm install
+npm run build
+npm start
+```
+
+启动后访问：
+
+- Frontend: `http://localhost:3001`
+- Health API: `http://localhost:3001/api/health`
+- Opportunities API: `http://localhost:3001/api/opportunities`
+
+`PORT` 可用于覆盖生产服务端口：
+
+```bash
+PORT=8080 npm start
+```
+
+## Render 部署
+
+Render Web Service 参数：
+
+- Runtime: Node
+- Build Command: `npm install && npm run build`
+- Start Command: `npm start`
+- Environment Variable: `PORT` 由 Render 自动注入，应用会读取 `process.env.PORT`
+
 ## API 列表
 
 - `GET /api/health`

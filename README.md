@@ -223,6 +223,26 @@ curl 'http://localhost:3001/api/mining/opportunities?limit=20&includeTraps=false
 ```
 
 
+
+## Phase 3 轻量监控预览
+
+当前 Phase 3 只提供前端本地监控演示，不新增后端 API，不使用 WebSocket，也不发送外部通知。
+
+已实现：
+
+- Monitor 页面读取现有 paper open positions：GET /api/paper/positions/open。
+- 在前端本地生成演示级告警：已有强平记录、浮亏较大、接近强平、Cash-and-Carry 观察。
+- 展示告警总数、critical / warning / info 数量，以及告警列表。
+- 支持“刷新监控”和“标记全部已读”。
+
+未实现：
+
+- 外部通知。
+- WebSocket 实时推送。
+- 真实账户监控。
+- API Key。
+- 真实下单或交易所私有接口。
+
 ## Phase 2.5 演示路径
 
 演示前建议先重置模拟账户，让虚拟账户回到 `10000 USDT`。如果机会挖掘显示 `fallback_snapshot`，不影响演示主链路；这表示当前环境无法稳定获取全部交易所实时数据，系统使用演示快照保证流程可展示。

@@ -1,5 +1,5 @@
-import { calculateFundingAmount } from "./funding";
-import type { PaperAccount, Side } from "./types";
+import { calculateFundingAmount } from "./funding.js";
+import type { PaperAccount, Side } from "./types.js";
 
 export type OpenCostParams = {
   notional: number;

@@ -1,4 +1,4 @@
-import type { FundingProfitInput, FundingProfitResult, Side } from "./types";
+import type { FundingProfitInput, FundingProfitResult, Side } from "./types.js";
 
 export function calculateSpread(rateA: number, rateB: number): number {
   return Math.abs(rateA - rateB);

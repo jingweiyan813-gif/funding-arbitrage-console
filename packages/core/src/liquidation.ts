@@ -3,7 +3,7 @@ import type {
   LiquidationResult,
   RiskLevel,
   Side
-} from "./types";
+} from "./types.js";
 
 export function calculateLiquidationPrice(input: LiquidationInput): number {
   const { side, markPrice, leverage, margin, maintMarginRate } = input;

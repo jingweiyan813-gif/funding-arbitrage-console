@@ -102,3 +102,66 @@ export type FundingSettlement = {
   amount: number;
   createdAt: number;
 };
+
+
+export type DiscoveryCandidate = {
+  symbol: string;
+  exchange: string;
+  rawRate: number;
+  intervalHours: number;
+  dailyRate: number;
+  annualizedRate: number;
+  change24h?: number;
+  change7d?: number;
+  intervalShortened: boolean;
+  trendDirection: "long_crowded" | "short_crowded";
+  singleSidedStrength: "mild" | "clear" | "severe";
+};
+
+export type HedgeabilityInput = {
+  secondLegExists: boolean;
+  spotBorrowAvailable?: boolean;
+  spotBorrowRate?: number;
+  liquidityOk: boolean;
+  depthUsd?: number;
+  marginAssetRisk?: "low" | "high";
+};
+
+export type HedgeabilityVerdict = {
+  hedgeable: "true" | "false" | "conditional";
+  secondLegExists: boolean;
+  spotBorrow: {
+    available: boolean | "unknown";
+    rate?: number;
+  };
+  liquidityOk: boolean;
+  depthUsd?: number;
+  marginAssetRisk: "low" | "high";
+  reason: string;
+};
+
+export type StrategyType = "cross_exchange_perp" | "cash_and_carry";
+
+export type CashCarryInput = {
+  notional: number;
+  fundingRate: number;
+  intervalHours: number;
+  cycles: number;
+  basisPnl?: number;
+  openFeeRate: number;
+  closeFeeRate: number;
+  slippageBps: number;
+  borrowRatePerDay?: number;
+  holdingDays: number;
+};
+
+export type CashCarryResult = {
+  grossFunding: number;
+  basisPnl: number;
+  openFees: number;
+  closeFees: number;
+  slippageCost: number;
+  borrowCost: number;
+  netProfit: number;
+  netApr: number;
+};

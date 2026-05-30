@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchOpportunities } from "../api/client";
+import { DashboardMetricCard } from "../components/DashboardMetricCard";
 import { DataSourceBadge } from "../components/DataSourceBadge";
+import { MiniTrendCard } from "../components/MiniTrendCard";
 import { OpportunityTable } from "../components/OpportunityTable";
-import { StatCard } from "../components/StatCard";
+import { RightRail } from "../components/RightRail";
 import { Tooltip } from "../components/Tooltip";
 import { EducationPanel } from "../edu/EducationPanel";
 import { scannerEducation } from "../edu/copy";
@@ -83,8 +85,13 @@ export function ScannerScreen({
     );
     const fakeCount = opportunities.filter((item) => item.fakeOpportunity)
       .length;
+    const averageSpread = opportunities.length
+      ? opportunities.reduce((total, item) => total + item.spread, 0) /
+        opportunities.length
+      : 0;
 
     return {
+      averageSpread,
       opportunityCount: opportunities.length,
       maxSpread,
       maxNetEdge,
@@ -93,77 +100,50 @@ export function ScannerScreen({
   }, [opportunities]);
 
   return (
-    <main className="scanner-screen">
-      <section className="toolbar">
+    <main className="scanner-screen dashboard-screen">
+      <section className="dashboard-hero">
         <div>
-          <span className="section-kicker">Scanner Dashboard</span>
-          <h2>资金费率套利机会</h2>
-          <p className="section-copy">
-            跨交易所对齐 USDT 永续合约
-            <Tooltip
-              label="资金费率"
-              text="永续合约多空双方定期交换的费用，正数通常表示多头付、空头收。"
-            />
-            ，优先展示扣除 taker 费后的
-            <Tooltip
-              label="净费差"
-              text="费差扣除两边交易手续费后的剩余边际，netEdge <= 0 时为假机会。"
-            />
-            。
+          <span className="section-kicker">Opportunities Dashboard</span>
+          <h2>Funding Rate Arbitrage Opportunities</h2>
+          <p>
+            Real-time analysis of cross-exchange rate differentials. The table
+            prioritizes spread, net edge, funding cadence, and paper-trading
+            readiness.
           </p>
         </div>
-        <div className="toolbar-actions">
-          <div className="segmented-control" aria-label="排序方式">
-            <button
-              className={sort === "spread" ? "active" : ""}
-              onClick={() => setSort("spread")}
-              type="button"
-            >
-              按费差排序
-            </button>
-            <button
-              className={sort === "netEdge" ? "active" : ""}
-              onClick={() => setSort("netEdge")}
-              type="button"
-            >
-              按净费差排序
-            </button>
-          </div>
-          <label className="toggle-control">
-            <input
-              checked={includeLowLiquidity}
-              onChange={(event) =>
-                setIncludeLowLiquidity(event.currentTarget.checked)
-              }
-              type="checkbox"
-            />
-            <span>包含低流动性</span>
-          </label>
-          <button
-            className="refresh-button"
-            disabled={isRefreshing}
-            onClick={() => void loadOpportunities()}
-            type="button"
-          >
-            {isRefreshing ? "刷新中" : "手动刷新"}
+        <div className="dashboard-filter-row" aria-label="Static filters">
+          <button type="button">All Assets</button>
+          <button type="button">Exchanges</button>
+          <button className="dashboard-apply-button" type="button">
+            Apply Filters
           </button>
         </div>
       </section>
 
-      <EducationPanel defaultCollapsed={false} title={scannerEducation.title}>
-        <ul>
-          {scannerEducation.points.map((point) => (
-            <li key={point}>{point}</li>
-          ))}
-        </ul>
-        <p>
-          <Tooltip
-            label="结算周期"
-            text="资金费率结算间隔，常见为 8 小时，也可能因交易所或品种而不同。"
-          />
-          越短，同样费差年化后越高，但也更依赖费率持续性。
-        </p>
-      </EducationPanel>
+      <section className="dashboard-metric-grid">
+        <DashboardMetricCard
+          detail="Cross-exchange average"
+          label="Average Spread"
+          tone="positive"
+          value={formatPercent(stats.averageSpread, 4)}
+        />
+        <DashboardMetricCard
+          detail="USDT perpetuals"
+          label="Market Context"
+          value={includeLowLiquidity ? "All liquidity" : "Mid+ liquidity"}
+        />
+        <DashboardMetricCard
+          detail={`${stats.fakeCount} fake after fees`}
+          label="Opportunity Count"
+          tone={stats.opportunityCount > 0 ? "positive" : "warning"}
+          value={stats.opportunityCount}
+        />
+        <DashboardMetricCard
+          detail={updatedAt ? `Updated ${formatDateTime(updatedAt)}` : "Waiting"}
+          label="Data Source"
+          value={<DataSourceBadge source={source} />}
+        />
+      </section>
 
       {errorMessage ? <div className="error-banner">{errorMessage}</div> : null}
 
@@ -188,37 +168,82 @@ export function ScannerScreen({
         </div>
       ) : null}
 
-      <section className="stats-grid">
-        <StatCard
-          detail={updatedAt ? `更新于 ${formatDateTime(updatedAt)}` : "等待更新"}
-          label="数据来源"
-          value={<DataSourceBadge source={source} />}
-        />
-        <StatCard label="机会数量" value={stats.opportunityCount} />
-        <StatCard label="最大费差" value={formatPercent(stats.maxSpread, 4)} />
-        <StatCard
-          label="最大净费差"
-          value={formatPercent(stats.maxNetEdge, 4)}
-        />
-        <StatCard label="假机会数量" value={stats.fakeCount} />
+      <section className="dashboard-body-grid">
+        <div className="dashboard-main-column">
+          <section className="table-panel opportunities-panel">
+            <div className="panel-heading dashboard-panel-heading">
+              <div>
+                <h3>机会排行榜</h3>
+                <span>{isLoading ? "加载中" : "30 秒自动刷新"}</span>
+              </div>
+              <div className="toolbar-actions compact-actions">
+                <div className="segmented-control" aria-label="排序方式">
+                  <button
+                    className={sort === "spread" ? "active" : ""}
+                    onClick={() => setSort("spread")}
+                    type="button"
+                  >
+                    按费差排序
+                  </button>
+                  <button
+                    className={sort === "netEdge" ? "active" : ""}
+                    onClick={() => setSort("netEdge")}
+                    type="button"
+                  >
+                    按净费差排序
+                  </button>
+                </div>
+                <label className="toggle-control">
+                  <input
+                    checked={includeLowLiquidity}
+                    onChange={(event) =>
+                      setIncludeLowLiquidity(event.currentTarget.checked)
+                    }
+                    type="checkbox"
+                  />
+                  <span>包含低流动性</span>
+                </label>
+                <button
+                  className="refresh-button"
+                  disabled={isRefreshing}
+                  onClick={() => void loadOpportunities()}
+                  type="button"
+                >
+                  {isRefreshing ? "刷新中" : "手动刷新"}
+                </button>
+              </div>
+            </div>
+            {isLoading ? (
+              <div className="loading-state">正在加载 Scanner 数据...</div>
+            ) : (
+              <OpportunityTable
+                onCalculate={onCalculate}
+                onLiquidation={onLiquidation}
+                onPaperTrade={onPaperTrade}
+                opportunities={opportunities}
+              />
+            )}
+          </section>
+        </div>
+        <RightRail fakeCount={stats.fakeCount} source={source} />
       </section>
 
-      <section className="table-panel">
-        <div className="panel-heading">
-          <h3>机会排行榜</h3>
-          <span>{isLoading ? "加载中" : "30 秒自动刷新"}</span>
-        </div>
-        {isLoading ? (
-          <div className="loading-state">正在加载 Scanner 数据...</div>
-        ) : (
-          <OpportunityTable
-            onCalculate={onCalculate}
-            onLiquidation={onLiquidation}
-            onPaperTrade={onPaperTrade}
-            opportunities={opportunities}
+      <MiniTrendCard />
+
+      <EducationPanel defaultCollapsed title={scannerEducation.title}>
+        <ul>
+          {scannerEducation.points.map((point) => (
+            <li key={point}>{point}</li>
+          ))}
+        </ul>
+        <p>
+          <Tooltip
+            label="结算周期"
+            text="资金费率结算间隔，常见为 8 小时，也可能因交易所或品种而不同。"
           />
-        )}
-      </section>
+          越短，同样费差年化后越高，但也更依赖费率持续性。
+        </p>
+      </EducationPanel>
     </main>
   );
 }

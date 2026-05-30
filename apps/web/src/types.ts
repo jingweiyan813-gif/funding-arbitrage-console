@@ -59,7 +59,7 @@ export type FundingRatesResponse = {
   data: FundingRate[];
 };
 
-export type ActiveTab = "scanner" | "calculator" | "liquidation" | "paper";
+export type ActiveTab = "scanner" | "calculator" | "liquidation" | "paper" | "education";
 
 export type CalculatorSeed = {
   symbol: string;

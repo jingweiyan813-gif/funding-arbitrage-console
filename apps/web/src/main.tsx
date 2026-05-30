@@ -1,11 +1,10 @@
 import React from "react";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
-import { Header } from "./components/Header";
+import { AppShell } from "./components/AppShell";
 import { RiskModal } from "./components/RiskModal";
-import { RiskBanner } from "./components/RiskBanner";
-import { TabNav } from "./components/TabNav";
 import { CalculatorScreen } from "./screens/CalculatorScreen";
+import { EducationScreen } from "./screens/EducationScreen";
 import { LiquidationScreen } from "./screens/LiquidationScreen";
 import { PaperTradingScreen } from "./screens/PaperTradingScreen";
 import { ScannerScreen } from "./screens/ScannerScreen";
@@ -65,31 +64,29 @@ function App() {
   return (
     <>
       <RiskModal />
-      <Header />
-      <RiskBanner />
-      <TabNav activeTab={activeTab} onChange={setActiveTab} />
-      {activeTab === "scanner" ? (
-        <ScannerScreen
-          onCalculate={handleCalculate}
-          onLiquidation={handleLiquidation}
-          onPaperTrade={handlePaperTrade}
-        />
-      ) : null}
-      {activeTab === "calculator" ? (
-        <CalculatorScreen
-          key={calculatorSeed ? JSON.stringify(calculatorSeed) : "default"}
-          seed={calculatorSeed}
-        />
-      ) : null}
-      {activeTab === "liquidation" ? (
-        <LiquidationScreen
-          key={liquidationSeed ? JSON.stringify(liquidationSeed) : "default"}
-          seed={liquidationSeed}
-        />
-      ) : null}
-      {activeTab === "paper" ? (
-        <PaperTradingScreen seed={paperSeed} />
-      ) : null}
+      <AppShell activeTab={activeTab} onNavigate={setActiveTab}>
+        {activeTab === "scanner" ? (
+          <ScannerScreen
+            onCalculate={handleCalculate}
+            onLiquidation={handleLiquidation}
+            onPaperTrade={handlePaperTrade}
+          />
+        ) : null}
+        {activeTab === "calculator" ? (
+          <CalculatorScreen
+            key={calculatorSeed ? JSON.stringify(calculatorSeed) : "default"}
+            seed={calculatorSeed}
+          />
+        ) : null}
+        {activeTab === "liquidation" ? (
+          <LiquidationScreen
+            key={liquidationSeed ? JSON.stringify(liquidationSeed) : "default"}
+            seed={liquidationSeed}
+          />
+        ) : null}
+        {activeTab === "paper" ? <PaperTradingScreen seed={paperSeed} /> : null}
+        {activeTab === "education" ? <EducationScreen /> : null}
+      </AppShell>
     </>
   );
 }

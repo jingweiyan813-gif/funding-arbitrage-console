@@ -4,6 +4,14 @@ import {
   openPaperArbitragePosition
 } from "../services/paperTrading.js";
 import {
+  settleAllOpenPositions,
+  settlePositionFunding
+} from "../services/settlement.js";
+import {
+  checkAndLiquidatePositions,
+  refreshOpenPositionsMarkPrice
+} from "../services/markPriceWatcher.js";
+import {
   getAccount,
   listFundingSettlements,
   listLedgerEvents,
@@ -120,6 +128,54 @@ paperRouter.post("/close", async (req: Request, res: Response) => {
     res.status(400).json({
       ok: false,
       error: error instanceof Error ? error.message : "Unknown paper close error"
+    });
+  }
+});
+
+
+paperRouter.post("/settle", async (req: Request, res: Response) => {
+  try {
+    const body = req.body as {
+      positionId?: string;
+      fundingTime?: number;
+      rate?: number;
+    };
+    const result = body.positionId
+      ? await settlePositionFunding({
+          positionId: body.positionId,
+          fundingTime: body.fundingTime,
+          rate: body.rate
+        })
+      : await settleAllOpenPositions({ fundingTime: body.fundingTime });
+    res.json({ ok: true, data: result });
+  } catch (error) {
+    res.status(400).json({
+      ok: false,
+      error: error instanceof Error ? error.message : "Unknown paper settlement error"
+    });
+  }
+});
+
+paperRouter.post("/refresh-prices", async (_req: Request, res: Response) => {
+  try {
+    const result = await refreshOpenPositionsMarkPrice();
+    res.json({ ok: true, data: result });
+  } catch (error) {
+    res.status(400).json({
+      ok: false,
+      error: error instanceof Error ? error.message : "Unknown paper price refresh error"
+    });
+  }
+});
+
+paperRouter.post("/check-liquidations", async (_req: Request, res: Response) => {
+  try {
+    const result = await checkAndLiquidatePositions();
+    res.json({ ok: true, data: result });
+  } catch (error) {
+    res.status(400).json({
+      ok: false,
+      error: error instanceof Error ? error.message : "Unknown paper liquidation check error"
     });
   }
 });

@@ -7,6 +7,8 @@ import { healthRouter } from "./routes/health.js";
 import { opportunitiesRouter } from "./routes/opportunities.js";
 import { paperRouter } from "./routes/paper.js";
 import { initializeStore } from "./data/store.js";
+import { startSettlementJob } from "./jobs/settlementJob.js";
+import { startLiquidationJob } from "./jobs/liquidationJob.js";
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -31,4 +33,6 @@ await initializeStore();
 
 app.listen(port, () => {
   console.log(`Server listening on http://localhost:${port}`);
+  startSettlementJob();
+  startLiquidationJob();
 });

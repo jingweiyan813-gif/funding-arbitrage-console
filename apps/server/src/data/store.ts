@@ -19,14 +19,18 @@ export type LedgerEvent = {
 };
 
 export type SettlementCursor = {
-  id: string;
   positionId: string;
-  lastSettledAt: number;
+  fundingTime: number;
+  createdAt: number;
+};
+
+export type ServerPaperPosition = PaperPosition & {
+  unrealizedPnl?: number;
 };
 
 export type PaperStore = {
   account: PaperAccount;
-  positions: PaperPosition[];
+  positions: ServerPaperPosition[];
   trades: Trade[];
   fundingSettlements: FundingSettlement[];
   settlementCursors: SettlementCursor[];
@@ -90,12 +94,12 @@ export async function resetAccount(): Promise<PaperStore> {
   return store;
 }
 
-export async function listPositions(): Promise<PaperPosition[]> {
+export async function listPositions(): Promise<ServerPaperPosition[]> {
   const store = await getStore();
   return store.positions;
 }
 
-export async function listOpenPositions(): Promise<PaperPosition[]> {
+export async function listOpenPositions(): Promise<ServerPaperPosition[]> {
   const positions = await listPositions();
   return positions.filter((position) => position.status === "open");
 }
@@ -157,8 +161,8 @@ export async function updateAccount(account: PaperAccount): Promise<PaperAccount
 }
 
 export async function addPositions(
-  positions: PaperPosition[]
-): Promise<PaperPosition[]> {
+  positions: ServerPaperPosition[]
+): Promise<ServerPaperPosition[]> {
   const store = await getStore();
   const nextStore: PaperStore = {
     ...store,
@@ -169,8 +173,8 @@ export async function addPositions(
 }
 
 export async function updatePositions(
-  positions: PaperPosition[]
-): Promise<PaperPosition[]> {
+  positions: ServerPaperPosition[]
+): Promise<ServerPaperPosition[]> {
   const store = await getStore();
   const positionById = new Map(
     positions.map((position) => [position.id, position] as const)
@@ -197,10 +201,62 @@ export async function addTrades(trades: Trade[]): Promise<Trade[]> {
 
 export async function getPositionsByIds(
   ids: string[]
-): Promise<PaperPosition[]> {
+): Promise<ServerPaperPosition[]> {
   const store = await getStore();
   const idSet = new Set(ids);
   return store.positions.filter((position) => idSet.has(position.id));
+}
+
+export async function addFundingSettlement(
+  settlement: FundingSettlement
+): Promise<FundingSettlement> {
+  const store = await getStore();
+  const nextStore: PaperStore = {
+    ...store,
+    fundingSettlements: [...store.fundingSettlements, settlement]
+  };
+  await saveStore(nextStore);
+  return settlement;
+}
+
+export async function addSettlementCursor(
+  cursor: SettlementCursor
+): Promise<SettlementCursor> {
+  const store = await getStore();
+  const nextStore: PaperStore = {
+    ...store,
+    settlementCursors: [...store.settlementCursors, cursor]
+  };
+  await saveStore(nextStore);
+  return cursor;
+}
+
+export async function hasSettlementCursor(
+  positionId: string,
+  fundingTime: number
+): Promise<boolean> {
+  const store = await getStore();
+  return store.settlementCursors.some(
+    (cursor) =>
+      cursor.positionId === positionId && cursor.fundingTime === fundingTime
+  );
+}
+
+export async function getPositionPairByPositionId(
+  positionId: string
+): Promise<ServerPaperPosition[]> {
+  const store = await getStore();
+  const position = store.positions.find((item) => item.id === positionId);
+  if (!position) {
+    return [];
+  }
+
+  return store.positions.filter(
+    (candidate) =>
+      candidate.accountId === position.accountId &&
+      candidate.symbol === position.symbol &&
+      candidate.openedAt === position.openedAt
+  );
 }
 
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {

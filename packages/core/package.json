@@ -1,0 +1,38 @@
+{
+  "name": "@funding-arbitrage-console/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./funding": {
+      "types": "./dist/funding.d.ts",
+      "default": "./dist/funding.js"
+    },
+    "./liquidation": {
+      "types": "./dist/liquidation.d.ts",
+      "default": "./dist/liquidation.js"
+    },
+    "./sizing": {
+      "types": "./dist/sizing.d.ts",
+      "default": "./dist/sizing.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.2"
+  }
+}

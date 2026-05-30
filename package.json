@@ -1,0 +1,19 @@
+{
+  "name": "funding-arbitrage-console",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w @funding-arbitrage-console/web\" \"npm run dev -w @funding-arbitrage-console/server\"",
+    "build": "npm run build -w @funding-arbitrage-console/core && npm run build -w @funding-arbitrage-console/server && npm run build -w @funding-arbitrage-console/web",
+    "test": "npm test -w @funding-arbitrage-console/core"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "typescript": "^5.8.3"
+  }
+}

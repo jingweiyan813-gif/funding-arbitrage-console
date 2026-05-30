@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "concurrently \"npm run dev -w @funding-arbitrage-console/web\" \"npm run dev -w @funding-arbitrage-console/server\"",
     "build": "npm run build -w @funding-arbitrage-console/core && npm run build -w @funding-arbitrage-console/server && npm run build -w @funding-arbitrage-console/web",
+    "start": "npm start -w @funding-arbitrage-console/server",
     "test": "npm test -w @funding-arbitrage-console/core"
   },
   "devDependencies": {

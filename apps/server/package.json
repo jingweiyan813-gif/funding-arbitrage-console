@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx src/index.ts",
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "start": "NODE_ENV=production node dist/index.js"
   },
   "dependencies": {
     "@funding-arbitrage-console/core": "0.0.0",

@@ -1,5 +1,6 @@
 import type {
   FundingRatesResponse,
+  MiningResponse,
   FundingSettlement,
   LedgerEvent,
   OpportunitiesResponse,
@@ -17,6 +18,12 @@ type OpportunitiesParams = {
 
 type FundingRatesParams = {
   includeLowLiquidity?: boolean;
+};
+
+type MiningParams = {
+  threshold?: number;
+  limit?: number;
+  includeTraps?: boolean;
 };
 
 export async function fetchOpportunities(
@@ -38,6 +45,29 @@ export async function fetchOpportunities(
   }
 
   return request<OpportunitiesResponse>(`/api/opportunities?${searchParams}`);
+}
+
+export async function fetchMiningOpportunities(
+  params: MiningParams = {}
+): Promise<MiningResponse> {
+  const searchParams = new URLSearchParams();
+
+  if (params.threshold !== undefined) {
+    searchParams.set("threshold", String(params.threshold));
+  }
+
+  if (params.limit !== undefined) {
+    searchParams.set("limit", String(params.limit));
+  }
+
+  if (params.includeTraps !== undefined) {
+    searchParams.set("includeTraps", String(params.includeTraps));
+  }
+
+  const query = searchParams.toString();
+  return request<MiningResponse>(
+    `/api/mining/opportunities${query ? `?${query}` : ""}`
+  );
 }
 
 export async function fetchFundingRates(

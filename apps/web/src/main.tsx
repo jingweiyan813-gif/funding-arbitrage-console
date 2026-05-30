@@ -68,7 +68,13 @@ function App() {
     <>
       <RiskModal />
       <AppShell activeTab={activeTab} onNavigate={setActiveTab}>
-        {activeTab === "opportunityMining" ? <OpportunityMiningScreen /> : null}
+        {activeTab === "opportunityMining" ? (
+          <OpportunityMiningScreen
+            onCalculate={handleCalculate}
+            onLiquidation={handleLiquidation}
+            onPaperTrade={handlePaperTrade}
+          />
+        ) : null}
         {activeTab === "scanner" ? (
           <ScannerScreen
             onCalculate={handleCalculate}

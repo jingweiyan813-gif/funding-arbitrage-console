@@ -159,3 +159,44 @@ export type LedgerEvent = {
 };
 
 export type PaperSeed = ArbOpportunity;
+
+
+export type MiningCategory = "true" | "conditional" | "trap";
+
+export type MiningSource = "live" | "partial" | "fallback_snapshot";
+
+export type MinedOpportunity = {
+  symbol: string;
+  exchange: ExchangeId;
+  rawRate: number;
+  intervalHours: number;
+  dailyRate: number;
+  annualizedRate: number;
+  change24h?: number;
+  intervalShortened: boolean;
+  trendDirection: "long_crowded" | "short_crowded";
+  singleSidedStrength: "mild" | "clear" | "severe";
+  hedgeability: {
+    hedgeable: "true" | "false" | "conditional";
+    secondLegExists: boolean;
+    spotBorrow: {
+      available: boolean | "unknown";
+      rate?: number;
+    };
+    liquidityOk: boolean;
+    depthUsd?: number;
+    marginAssetRisk: "low" | "high";
+    reason: string;
+  };
+  category: MiningCategory;
+  strategyType: "cross_exchange_perp" | "cash_and_carry";
+  reason: string;
+};
+
+export type MiningResponse = {
+  ok: boolean;
+  source: MiningSource;
+  updatedAt: string;
+  errors: Record<string, string>;
+  data: MinedOpportunity[];
+};

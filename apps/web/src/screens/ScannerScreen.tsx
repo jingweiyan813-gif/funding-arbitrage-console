@@ -149,8 +149,8 @@ export function ScannerScreen({
 
       {source === "partial" && Object.keys(errors).length > 0 ? (
         <div className="notice notice--partial">
-          <strong>部分交易所数据暂缺</strong>
-          <p>部分交易所数据暂缺。</p>
+          <strong>部分交易所实时数据可用，部分交易所暂时超时。</strong>
+          <p>当前仍会使用可用数据生成机会榜，超时交易所会列在下方。</p>
           <ul>
             {Object.entries(errors).map(([exchange, message]) => (
               <li key={exchange}>
@@ -164,7 +164,7 @@ export function ScannerScreen({
 
       {source === "mock" ? (
         <div className="notice notice--mock">
-          当前展示 fallback 模拟数据，真实跨所机会暂不可用。
+          当前机会榜使用 fallback 演示数据。公开行情读取链路已接入，但当前环境无法同时获取两个以上交易所数据，因此使用演示快照保证流程可展示。
         </div>
       ) : null}
 

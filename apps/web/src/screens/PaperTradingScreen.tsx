@@ -167,6 +167,14 @@ export function PaperTradingScreen({ seed }: PaperTradingScreenProps) {
       {errorMessage ? <div className="error-banner">{errorMessage}</div> : null}
       {isLoading ? <div className="loading-state">正在加载模拟盘...</div> : null}
 
+      <section className="demo-hint-card">
+        <strong>演示前提示</strong>
+        <p>建议演示前先点击「重置模拟账户」，将虚拟账户恢复到 10000 USDT，避免历史演示数据影响展示。</p>
+        {account && account.equity !== 10000 ? (
+          <span>当前账户包含历史模拟记录，如需从干净状态开始，请重置账户。</span>
+        ) : null}
+      </section>
+
       <AccountSummary account={account} />
 
       <section className="paper-panel">
@@ -182,6 +190,7 @@ export function PaperTradingScreen({ seed }: PaperTradingScreenProps) {
           onReset={handleReset}
           onSettle={handleSettle}
         />
+        <p className="paper-note paper-note--compact">当前手动结算使用演示费率，用于验证账本与资金费结算流程；真实结算将在后台按交易所返回费率处理。</p>
       </section>
 
       {seed ? (

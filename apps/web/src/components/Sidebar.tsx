@@ -12,12 +12,12 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { label: "Dashboard", tab: "scanner", hint: "Overview" },
-  { label: "Opportunities", tab: "scanner", hint: "Scanner" },
-  { label: "Calculator", tab: "calculator" },
-  { label: "Liquidation", tab: "liquidation" },
-  { label: "Paper Trading", tab: "paper" },
-  { label: "Education", tab: "education" }
+  { label: "总览", tab: "scanner", hint: "Dashboard" },
+  { label: "机会扫描", tab: "scanner", hint: "Opportunities" },
+  { label: "收益计算", tab: "calculator", hint: "Calculator" },
+  { label: "爆仓风险", tab: "liquidation", hint: "Liquidation" },
+  { label: "模拟盘", tab: "paper", hint: "Paper Trading" },
+  { label: "学习说明", tab: "education", hint: "Education" }
 ];
 
 export function Sidebar({ activeTab, onNavigate }: SidebarProps) {

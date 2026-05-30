@@ -46,3 +46,59 @@ export type LiquidationResult = {
   riskLevel: RiskLevel;
   warning?: string;
 };
+
+export type PaperPositionStatus = "open" | "closed" | "liquidated";
+
+export type PaperAccount = {
+  id: string;
+  equity: number;
+  baseCurrency: "USDT";
+  realizedPnl: number;
+  totalFundingReceived: number;
+  totalFees: number;
+};
+
+export type PaperPosition = {
+  id: string;
+  accountId: string;
+  exchange: string;
+  symbol: string;
+  side: Side;
+  notional: number;
+  leverage: number;
+  entryPrice: number;
+  markPrice: number;
+  margin: number;
+  maintMarginRate: number;
+  liqPrice: number;
+  status: PaperPositionStatus;
+  openedAt: number;
+  closedAt?: number;
+};
+
+export type Trade = {
+  id: string;
+  accountId: string;
+  positionId: string;
+  type: "open" | "close" | "liquidation";
+  side: Side;
+  symbol: string;
+  exchange: string;
+  price: number;
+  notional: number;
+  fee: number;
+  slippageCost: number;
+  realizedPnl: number;
+  createdAt: number;
+};
+
+export type FundingSettlement = {
+  id: string;
+  accountId: string;
+  positionId: string;
+  symbol: string;
+  exchange: string;
+  rate: number;
+  amount: number;
+  createdAt: number;
+};

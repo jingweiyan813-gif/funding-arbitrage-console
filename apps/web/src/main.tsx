@@ -2,6 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Header } from "./components/Header";
+import { RiskModal } from "./components/RiskModal";
 import { RiskBanner } from "./components/RiskBanner";
 import { TabNav } from "./components/TabNav";
 import { CalculatorScreen } from "./screens/CalculatorScreen";
@@ -55,6 +56,7 @@ function App() {
 
   return (
     <>
+      <RiskModal />
       <Header />
       <RiskBanner />
       <TabNav activeTab={activeTab} onChange={setActiveTab} />

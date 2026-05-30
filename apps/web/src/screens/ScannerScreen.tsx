@@ -3,6 +3,9 @@ import { fetchOpportunities } from "../api/client";
 import { DataSourceBadge } from "../components/DataSourceBadge";
 import { OpportunityTable } from "../components/OpportunityTable";
 import { StatCard } from "../components/StatCard";
+import { Tooltip } from "../components/Tooltip";
+import { EducationPanel } from "../edu/EducationPanel";
+import { scannerEducation } from "../edu/copy";
 import type { ApiSource, ArbOpportunity } from "../types";
 
 type SortMode = "spread" | "netEdge";
@@ -94,8 +97,17 @@ export function ScannerScreen({
           <span className="section-kicker">Scanner Dashboard</span>
           <h2>资金费率套利机会</h2>
           <p className="section-copy">
-            跨交易所对齐 USDT 永续合约资金费率，优先展示扣除 taker
-            费后的可观察机会。
+            跨交易所对齐 USDT 永续合约
+            <Tooltip
+              label="资金费率"
+              text="永续合约多空双方定期交换的费用，正数通常表示多头付、空头收。"
+            />
+            ，优先展示扣除 taker 费后的
+            <Tooltip
+              label="净费差"
+              text="费差扣除两边交易手续费后的剩余边际，netEdge <= 0 时为假机会。"
+            />
+            。
           </p>
         </div>
         <div className="toolbar-actions">
@@ -136,11 +148,27 @@ export function ScannerScreen({
         </div>
       </section>
 
+      <EducationPanel defaultCollapsed={false} title={scannerEducation.title}>
+        <ul>
+          {scannerEducation.points.map((point) => (
+            <li key={point}>{point}</li>
+          ))}
+        </ul>
+        <p>
+          <Tooltip
+            label="结算周期"
+            text="资金费率结算间隔，常见为 8 小时，也可能因交易所或品种而不同。"
+          />
+          越短，同样费差年化后越高，但也更依赖费率持续性。
+        </p>
+      </EducationPanel>
+
       {errorMessage ? <div className="error-banner">{errorMessage}</div> : null}
 
       {source === "partial" && Object.keys(errors).length > 0 ? (
         <div className="notice notice--partial">
           <strong>部分交易所数据暂缺</strong>
+          <p>部分交易所数据暂缺。</p>
           <ul>
             {Object.entries(errors).map(([exchange, message]) => (
               <li key={exchange}>

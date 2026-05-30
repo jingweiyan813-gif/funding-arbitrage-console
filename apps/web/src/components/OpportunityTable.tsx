@@ -1,4 +1,5 @@
 import type { ArbOpportunity } from "../types";
+import { Tooltip } from "./Tooltip";
 
 type OpportunityTableProps = {
   opportunities: ArbOpportunity[];
@@ -30,10 +31,20 @@ export function OpportunityTable({
             <th>所A / 费率</th>
             <th>所B / 费率</th>
             <th>费差</th>
-            <th>净费差</th>
+            <th>
+              <Tooltip
+                label="净费差"
+                text="费差扣除两边手续费后的剩余边际，netEdge <= 0 时为假机会。"
+              />
+            </th>
             <th>建议方向</th>
             <th>流动性</th>
-            <th>结算周期</th>
+            <th>
+              <Tooltip
+                label="结算周期"
+                text="资金费率结算间隔，常见为 8 小时，也可能因交易所或品种而不同。"
+              />
+            </th>
             <th>估算年化</th>
             <th>净年化</th>
             <th>状态</th>

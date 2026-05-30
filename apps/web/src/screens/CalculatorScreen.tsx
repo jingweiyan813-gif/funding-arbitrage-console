@@ -3,6 +3,9 @@ import { calculateFundingProfit } from "@funding-arbitrage-console/core";
 import type { Side } from "@funding-arbitrage-console/core";
 import { FormField } from "../components/FormField";
 import { ProfitBill } from "../components/ProfitBill";
+import { Tooltip } from "../components/Tooltip";
+import { EducationPanel } from "../edu/EducationPanel";
+import { calculatorEducation } from "../edu/copy";
 import type { CalculatorSeed } from "../types";
 
 type FeeMode = "maker" | "taker";
@@ -53,9 +56,14 @@ export function CalculatorScreen({ seed }: CalculatorScreenProps) {
     seed ? formFromSeed(seed) : defaultForm
   );
 
-  const result = useMemo(
-    () =>
-      calculateFundingProfit({
+  const validationError = validateForm(form);
+  const result = useMemo(() => {
+    if (validationError) {
+      return null;
+    }
+
+    try {
+      return calculateFundingProfit({
         legA: {
           exchange: form.legAExchange,
           symbol: form.symbol,
@@ -75,9 +83,11 @@ export function CalculatorScreen({ seed }: CalculatorScreenProps) {
         cycles: form.cycles,
         intervalHours: form.intervalHours,
         slippageBps: form.slippageBps
-      }),
-    [form]
-  );
+      });
+    } catch {
+      return null;
+    }
+  }, [form, validationError]);
 
   function update<K extends keyof CalculatorForm>(
     key: K,
@@ -103,10 +113,23 @@ export function CalculatorScreen({ seed }: CalculatorScreenProps) {
           <span className="section-kicker">Profit Calculator</span>
           <h2>净收益计算器</h2>
           <p className="section-copy">
-            使用 core 计算层估算跨所资金费收入、开平仓手续费、滑点成本和净年化。
+            使用 core 计算层估算跨所资金费收入、开平仓手续费、
+            <Tooltip
+              label="滑点"
+              text="实际成交价格和预期价格之间的偏差，会直接降低净收益。"
+            />
+            成本和净年化。
           </p>
         </div>
       </section>
+
+      <EducationPanel defaultCollapsed={false} title={calculatorEducation.title}>
+        <ul>
+          {calculatorEducation.points.map((point) => (
+            <li key={point}>{point}</li>
+          ))}
+        </ul>
+      </EducationPanel>
 
       <section className="workbench-grid">
         <div className="form-card">
@@ -200,7 +223,13 @@ export function CalculatorScreen({ seed }: CalculatorScreenProps) {
             />
           </div>
         </div>
-        <ProfitBill result={result} />
+        {validationError || !result ? (
+          <div className="error-banner calculator-error">
+            {validationError ?? "当前输入无法完成计算，请检查参数。"}
+          </div>
+        ) : (
+          <ProfitBill result={result} />
+        )}
       </section>
     </main>
   );
@@ -249,4 +278,28 @@ function formFromSeed(seed: CalculatorSeed): CalculatorForm {
 function toNumber(value: string): number {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function validateForm(form: CalculatorForm): string | null {
+  if (!form.symbol.trim()) {
+    return "symbol 不能为空。";
+  }
+
+  if (form.notional < 0) {
+    return "notional 不能为负数。";
+  }
+
+  if (form.cycles <= 0) {
+    return "cycles 必须大于 0。";
+  }
+
+  if (form.intervalHours <= 0) {
+    return "intervalHours 必须大于 0。";
+  }
+
+  if (form.feeRateA < 0 || form.feeRateB < 0 || form.slippageBps < 0) {
+    return "手续费和滑点不能为负数。";
+  }
+
+  return null;
 }

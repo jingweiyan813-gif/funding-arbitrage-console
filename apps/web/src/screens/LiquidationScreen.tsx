@@ -3,6 +3,9 @@ import { calculateLiquidation } from "@funding-arbitrage-console/core";
 import type { Side } from "@funding-arbitrage-console/core";
 import { FormField } from "../components/FormField";
 import { PriceAxis } from "../components/PriceAxis";
+import { Tooltip } from "../components/Tooltip";
+import { EducationPanel } from "../edu/EducationPanel";
+import { liquidationEducation } from "../edu/copy";
 import type { LiquidationSeed } from "../types";
 
 type LiquidationForm = {
@@ -40,32 +43,37 @@ export function LiquidationScreen({ seed }: LiquidationScreenProps) {
     seed ? formFromSeed(seed) : defaultForm
   );
 
-  const legA = useMemo(
-    () =>
-      calculateLiquidation({
+  const validationError = validateForm(form);
+  const liquidationResult = useMemo(() => {
+    if (validationError) {
+      return null;
+    }
+
+    try {
+      const legA = calculateLiquidation({
         side: form.legASide,
         markPrice: form.markPrice,
         leverage: form.legALeverage,
         margin: form.legAMargin,
         maintMarginRate: form.legAMaintMarginRate
-      }),
-    [form]
-  );
-  const legB = useMemo(
-    () =>
-      calculateLiquidation({
+      });
+      const legB = calculateLiquidation({
         side: form.legBSide,
         markPrice: form.markPrice,
         leverage: form.legBLeverage,
         margin: form.legBMargin,
         maintMarginRate: form.legBMaintMarginRate
-      }),
-    [form]
-  );
-  const overallWarning =
-    legA.riskLevel === "critical" || legB.riskLevel === "critical"
-      ? "存在强平距离过近的单腿风险。"
-      : legA.warning ?? legB.warning ?? "当前参数下未触发额外风险提示。";
+      });
+      const overallWarning =
+        legA.riskLevel === "critical" || legB.riskLevel === "critical"
+          ? "存在强平距离过近的单腿风险。"
+          : legA.warning ?? legB.warning ?? "当前参数下未触发额外风险提示。";
+
+      return { legA, legB, overallWarning };
+    } catch {
+      return null;
+    }
+  }, [form, validationError]);
 
   function update<K extends keyof LiquidationForm>(
     key: K,
@@ -81,10 +89,35 @@ export function LiquidationScreen({ seed }: LiquidationScreenProps) {
           <span className="section-kicker">Liquidation Check</span>
           <h2>爆仓风险计算器</h2>
           <p className="section-copy">
-            双腿看似中性，但每条腿都可能单独爆仓。
+            双腿
+            <Tooltip
+              label="Delta 中性"
+              text="多空方向相互抵消价格方向风险的状态，但不代表没有保证金或强平风险。"
+            />
+            不代表没有风险，每条腿都可能单独触及
+            <Tooltip
+              label="强平价"
+              text="保证金不足时仓位可能被交易所强制平仓的价格。"
+            />
+            。
           </p>
         </div>
       </section>
+
+      <EducationPanel defaultCollapsed={false} title={liquidationEducation.title}>
+        <ul>
+          {liquidationEducation.points.map((point) => (
+            <li key={point}>{point}</li>
+          ))}
+        </ul>
+        <p>
+          <Tooltip
+            label="维持保证金"
+            text="持仓必须维持的最低保证金比例，低于要求时可能触发强平。"
+          />
+          是强平价估算中的关键参数。
+        </p>
+      </EducationPanel>
 
       <section className="workbench-grid">
         <div className="form-card">
@@ -150,22 +183,38 @@ export function LiquidationScreen({ seed }: LiquidationScreenProps) {
         </div>
 
         <section className="risk-result-card">
-          <PriceAxis
-            legs={[
-              { label: "A", side: form.legASide, liqPrice: legA.liqPrice },
-              { label: "B", side: form.legBSide, liqPrice: legB.liqPrice }
-            ]}
-            markPrice={form.markPrice}
-          />
-          <div className="risk-leg-grid">
-            <RiskLegResult label="A 腿" result={legA} />
-            <RiskLegResult label="B 腿" result={legB} />
-          </div>
-          <div className="notice notice--partial">
-            <strong>整体风险提示</strong>
-            <p>{overallWarning}</p>
-            <p>双腿看似中性，但每条腿都可能单独爆仓。</p>
-          </div>
+          {validationError || !liquidationResult ? (
+            <div className="error-banner">
+              {validationError ?? "当前输入无法完成强平计算，请检查参数。"}
+            </div>
+          ) : (
+            <>
+              <PriceAxis
+                legs={[
+                  {
+                    label: "A",
+                    side: form.legASide,
+                    liqPrice: liquidationResult.legA.liqPrice
+                  },
+                  {
+                    label: "B",
+                    side: form.legBSide,
+                    liqPrice: liquidationResult.legB.liqPrice
+                  }
+                ]}
+                markPrice={form.markPrice}
+              />
+              <div className="risk-leg-grid">
+                <RiskLegResult label="A 腿" result={liquidationResult.legA} />
+                <RiskLegResult label="B 腿" result={liquidationResult.legB} />
+              </div>
+              <div className="notice notice--partial">
+                <strong>整体风险提示</strong>
+                <p>{liquidationResult.overallWarning}</p>
+                <p>双腿看似中性，但每条腿都可能单独爆仓。</p>
+              </div>
+            </>
+          )}
         </section>
       </section>
     </main>
@@ -232,6 +281,30 @@ function formFromSeed(seed: LiquidationSeed): LiquidationForm {
 function toNumber(value: string): number {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function validateForm(form: LiquidationForm): string | null {
+  if (!form.symbol.trim()) {
+    return "symbol 不能为空。";
+  }
+
+  if (form.markPrice <= 0) {
+    return "markPrice 必须大于 0。";
+  }
+
+  if (form.legALeverage <= 0 || form.legBLeverage <= 0) {
+    return "leverage 必须大于 0。";
+  }
+
+  if (form.legAMargin <= 0 || form.legBMargin <= 0) {
+    return "margin 必须大于 0。";
+  }
+
+  if (form.legAMaintMarginRate < 0 || form.legBMaintMarginRate < 0) {
+    return "maintMarginRate 不能为负数。";
+  }
+
+  return null;
 }
 
 function formatPrice(value: number): string {

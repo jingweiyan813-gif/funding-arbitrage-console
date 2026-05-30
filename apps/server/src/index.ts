@@ -1,4 +1,4 @@
-import express from "express";
+import express, { type Request, type Response } from "express";
 import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -19,7 +19,7 @@ app.use("/api", opportunitiesRouter);
 
 if (process.env.NODE_ENV === "production" && existsSync(webIndexPath)) {
   app.use(express.static(webDistPath));
-  app.get(/^(?!\/api).*/, (_req, res) => {
+  app.get(/^(?!\/api).*/, (_req: Request, res: Response) => {
     res.sendFile(webIndexPath);
   });
 }

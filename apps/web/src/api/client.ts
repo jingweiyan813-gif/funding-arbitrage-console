@@ -7,7 +7,8 @@ import type {
   PaperAccount,
   PaperPosition,
   PaperTrade,
-  Side
+  Side,
+  StrategyType
 } from "../types";
 
 type OpportunitiesParams = {
@@ -104,6 +105,10 @@ type OpenPaperPositionPayload = {
   feeRate?: number;
   slippageBps?: number;
   maintMarginRate?: number;
+  strategyType?: StrategyType;
+  borrowRatePerDay?: number;
+  holdingDays?: number;
+  basisPnl?: number;
 };
 
 type ClosePaperPositionsPayload = {

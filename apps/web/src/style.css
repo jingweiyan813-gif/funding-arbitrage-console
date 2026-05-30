@@ -2123,3 +2123,42 @@ select:focus-visible {
     display: grid;
   }
 }
+
+
+.strategy-type-callout {
+  display: grid;
+  gap: 6px;
+  margin: 16px 24px 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(15, 118, 110, 0.18);
+  border-radius: 16px;
+  background: #eef8f1;
+  color: var(--muted);
+}
+
+.strategy-type-callout strong {
+  color: var(--primary-strong);
+}
+
+.strategy-badge {
+  display: inline-flex;
+  width: max-content;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 8px;
+  color: var(--primary-strong);
+  background: #e2f4eb;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.ledger-meta {
+  display: grid;
+  gap: 4px;
+}
+
+.ledger-meta small,
+.muted-inline {
+  color: var(--muted-soft);
+  font-size: 12px;
+}

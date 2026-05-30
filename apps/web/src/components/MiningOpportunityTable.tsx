@@ -122,7 +122,8 @@ function toArbOpportunity(opportunity: MinedOpportunity): ArbOpportunity {
     liquidity: opportunity.hedgeability.liquidityOk ? "mid" : "low",
     intervalHours: opportunity.intervalHours,
     fakeOpportunity: opportunity.category === "trap",
-    direction: receiveSide + " " + opportunity.exchange + " / " + hedgeSide + " hedge leg"
+    direction: receiveSide + " " + opportunity.exchange + " / " + hedgeSide + " hedge leg",
+    strategyType: opportunity.strategyType
   };
 }
 

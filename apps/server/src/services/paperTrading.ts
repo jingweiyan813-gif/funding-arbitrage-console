@@ -1,4 +1,5 @@
 import {
+  calculateCashCarryNetReturn,
   calculateCloseResult,
   calculateLiquidation,
   calculateOpenCost,
@@ -6,14 +7,13 @@ import {
 } from "@funding-arbitrage-console/core";
 import type {
   PaperAccount,
+  PaperLegType,
   PaperPosition,
   Side,
+  StrategyType,
   Trade
 } from "@funding-arbitrage-console/core";
-import {
-  getStore,
-  saveStore
-} from "../data/store.js";
+import { getStore, saveStore } from "../data/store.js";
 import { CcxtPublicExchange } from "../exchanges/CcxtPublicExchange.js";
 import type { ExchangeId } from "../exchanges/types.js";
 import { mockFundingRates } from "../mock/mockData.js";
@@ -34,6 +34,10 @@ export type OpenPaperArbitragePositionParams = {
   feeRate?: number;
   slippageBps?: number;
   maintMarginRate?: number;
+  strategyType?: StrategyType;
+  borrowRatePerDay?: number;
+  holdingDays?: number;
+  basisPnl?: number;
 };
 
 export type ClosePaperPositionPairParams = {
@@ -53,9 +57,22 @@ const DEFAULT_LEVERAGE = 3;
 const DEFAULT_FEE_RATE = 0.0006;
 const DEFAULT_SLIPPAGE_BPS = 5;
 const DEFAULT_MAINT_MARGIN_RATE = 0.005;
+const DEFAULT_BORROW_RATE_PER_DAY = 0.0002;
+const DEFAULT_HOLDING_DAYS = 1;
+const DEFAULT_BASIS_PNL = 0;
 const SUPPORTED_EXCHANGES: ExchangeId[] = ["binance", "bybit", "okx", "gate"];
 
 export async function openPaperArbitragePosition(
+  params: OpenPaperArbitragePositionParams
+): Promise<PaperTradeResult> {
+  const strategyType = params.strategyType ?? "cross_exchange_perp";
+
+  return strategyType === "cash_and_carry"
+    ? openCashCarryPosition(params)
+    : openCrossExchangePosition(params);
+}
+
+async function openCrossExchangePosition(
   params: OpenPaperArbitragePositionParams
 ): Promise<PaperTradeResult> {
   const now = Date.now();
@@ -81,9 +98,7 @@ export async function openPaperArbitragePosition(
   const openCostB = calculateOpenCost({ notional, feeRate, slippageBps });
   const totalMargin = roundMoney(marginPerLeg * 2);
   const totalOpenFees = roundMoney(openCostA.fee + openCostB.fee);
-  const totalSlippageCost = roundMoney(
-    openCostA.slippageCost + openCostB.slippageCost
-  );
+  const totalSlippageCost = roundMoney(openCostA.slippageCost + openCostB.slippageCost);
   const totalRequired = roundMoney(totalMargin + totalOpenFees + totalSlippageCost);
 
   if (store.account.equity < totalRequired) {
@@ -106,7 +121,9 @@ export async function openPaperArbitragePosition(
     markPrice: markPriceA,
     slippageBps,
     now,
-    index: "A"
+    index: "A",
+    strategyType: "cross_exchange_perp",
+    legType: "perp"
   });
   const positionB = createOpenPosition({
     accountId: store.account.id,
@@ -120,7 +137,9 @@ export async function openPaperArbitragePosition(
     markPrice: markPriceB,
     slippageBps,
     now,
-    index: "B"
+    index: "B",
+    strategyType: "cross_exchange_perp",
+    legType: "perp"
   });
   const tradeA = createOpenTrade({
     accountId: store.account.id,
@@ -156,6 +175,113 @@ export async function openPaperArbitragePosition(
   return { account, positions, trades };
 }
 
+async function openCashCarryPosition(
+  params: OpenPaperArbitragePositionParams
+): Promise<PaperTradeResult> {
+  const now = Date.now();
+  const symbol = requireNonEmptyString(params.symbol, "symbol");
+  const notional = params.notional ?? DEFAULT_NOTIONAL;
+  const leverage = params.leverage ?? DEFAULT_LEVERAGE;
+  const marginPerLeg = params.marginPerLeg ?? notional / leverage;
+  const feeRate = params.feeRate ?? DEFAULT_FEE_RATE;
+  const slippageBps = params.slippageBps ?? DEFAULT_SLIPPAGE_BPS;
+  const maintMarginRate = params.maintMarginRate ?? DEFAULT_MAINT_MARGIN_RATE;
+  const borrowRatePerDay = params.borrowRatePerDay ?? DEFAULT_BORROW_RATE_PER_DAY;
+  const holdingDays = params.holdingDays ?? DEFAULT_HOLDING_DAYS;
+  const basisPnl = params.basisPnl ?? DEFAULT_BASIS_PNL;
+  const spotExchange = normalizeExchangeId(params.legA?.exchange ?? "binance");
+  const perpExchange = normalizeExchangeId(params.legB?.exchange ?? "bybit");
+
+  assertPositive("notional", notional);
+  assertPositive("leverage", leverage);
+  assertPositive("marginPerLeg", marginPerLeg);
+  assertNonNegative("feeRate", feeRate);
+  assertNonNegative("slippageBps", slippageBps);
+  assertNonNegative("maintMarginRate", maintMarginRate);
+  assertNonNegative("borrowRatePerDay", borrowRatePerDay);
+  assertPositive("holdingDays", holdingDays);
+
+  const store = await getStore();
+  const spotOpenCost = calculateOpenCost({ notional, feeRate, slippageBps });
+  const perpOpenCost = calculateOpenCost({ notional, feeRate, slippageBps });
+  const totalCapital = roundMoney(notional + marginPerLeg);
+  const totalOpenFees = roundMoney(spotOpenCost.fee + perpOpenCost.fee);
+  const totalSlippageCost = roundMoney(spotOpenCost.slippageCost + perpOpenCost.slippageCost);
+  const totalRequired = roundMoney(totalCapital + totalOpenFees + totalSlippageCost);
+
+  if (store.account.equity < totalRequired) {
+    throw new Error("Insufficient paper equity");
+  }
+
+  const [spotMarkPrice, perpMarkPrice] = await Promise.all([
+    resolveMarkPrice(spotExchange, symbol),
+    resolveMarkPrice(perpExchange, symbol)
+  ]);
+  const spotPosition = createSpotPosition({
+    accountId: store.account.id,
+    exchange: spotExchange,
+    symbol,
+    notional,
+    markPrice: spotMarkPrice,
+    slippageBps,
+    now,
+    borrowRatePerDay,
+    holdingDays,
+    basisPnl
+  });
+  const perpPosition = createOpenPosition({
+    accountId: store.account.id,
+    exchange: perpExchange,
+    symbol,
+    side: "short",
+    notional,
+    leverage,
+    margin: marginPerLeg,
+    maintMarginRate,
+    markPrice: perpMarkPrice,
+    slippageBps,
+    now,
+    index: "perp",
+    strategyType: "cash_and_carry",
+    legType: "perp",
+    borrowRatePerDay,
+    holdingDays,
+    basisPnl
+  });
+  const spotTrade = createOpenTrade({
+    accountId: store.account.id,
+    position: spotPosition,
+    fee: spotOpenCost.fee,
+    slippageCost: spotOpenCost.slippageCost,
+    now,
+    index: 0
+  });
+  const perpTrade = createOpenTrade({
+    accountId: store.account.id,
+    position: perpPosition,
+    fee: perpOpenCost.fee,
+    slippageCost: perpOpenCost.slippageCost,
+    now,
+    index: 1
+  });
+  const account: PaperAccount = {
+    ...store.account,
+    equity: roundMoney(store.account.equity - totalRequired),
+    totalFees: roundMoney(store.account.totalFees + totalOpenFees)
+  };
+  const positions = [spotPosition, perpPosition];
+  const trades = [spotTrade, perpTrade];
+
+  await saveStore({
+    ...store,
+    account,
+    positions: [...store.positions, ...positions],
+    trades: [...store.trades, ...trades]
+  });
+
+  return { account, positions, trades };
+}
+
 export async function closePaperPositionPair(
   params: ClosePaperPositionPairParams
 ): Promise<PaperTradeResult> {
@@ -171,9 +297,7 @@ export async function closePaperPositionPair(
 
   const store = await getStore();
   const idSet = new Set(params.positionIds);
-  const positionsToClose = store.positions.filter((position) =>
-    idSet.has(position.id)
-  );
+  const positionsToClose = store.positions.filter((position) => idSet.has(position.id));
 
   if (positionsToClose.length !== 2) {
     throw new Error("A paper arbitrage pair must contain exactly two positions");
@@ -185,11 +309,16 @@ export async function closePaperPositionPair(
     }
   }
 
+  const strategyType = getPairStrategyType(positionsToClose);
   const markPrices = await Promise.all(
     positionsToClose.map((position) =>
       resolveMarkPrice(normalizeExchangeId(position.exchange), position.symbol)
     )
   );
+  const cashCarryAdjustment =
+    strategyType === "cash_and_carry"
+      ? calculateCashCarryAdjustment(positionsToClose)
+      : { borrowCost: 0, basisPnl: 0 };
   const closeTrades: Trade[] = [];
   const closedPositions = positionsToClose.map((position, index) => {
     const markPrice = markPrices[index];
@@ -202,12 +331,25 @@ export async function closePaperPositionPair(
       feeRate,
       slippageBps
     });
+    const adjustment = strategyType === "cash_and_carry" && index === 0
+      ? roundMoney(cashCarryAdjustment.basisPnl - cashCarryAdjustment.borrowCost)
+      : 0;
+    const realizedPnl = roundMoney(closeResult.realizedPnl + adjustment);
     const closedPosition: PaperPosition = {
       ...position,
       markPrice,
       status: "closed",
       closedAt: now
     };
+    const meta: Record<string, unknown> = {
+      legType: position.legType
+    };
+    if (strategyType === "cash_and_carry" && index === 0) {
+      meta.borrowCost = cashCarryAdjustment.borrowCost;
+      meta.basisPnl = cashCarryAdjustment.basisPnl;
+      meta.borrowRatePerDay = position.borrowRatePerDay ?? DEFAULT_BORROW_RATE_PER_DAY;
+      meta.holdingDays = position.holdingDays ?? DEFAULT_HOLDING_DAYS;
+    }
     closeTrades.push({
       id: createId("paper-trade-close", now, index),
       accountId: position.accountId,
@@ -220,46 +362,36 @@ export async function closePaperPositionPair(
       notional: position.notional,
       fee: closeResult.fee,
       slippageCost: closeResult.slippageCost,
-      realizedPnl: closeResult.realizedPnl,
-      createdAt: now
+      realizedPnl,
+      createdAt: now,
+      strategyType,
+      legType: position.legType,
+      meta
     });
     return closedPosition;
   });
-  const marginReturned = roundMoney(
-    closedPositions.reduce((total, position) => total + position.margin, 0)
-  );
-  const realizedPnl = roundMoney(
-    closeTrades.reduce((total, trade) => total + trade.realizedPnl, 0)
-  );
-  const closeFees = roundMoney(
-    closeTrades.reduce((total, trade) => total + trade.fee, 0)
-  );
+  const marginReturned = roundMoney(closedPositions.reduce((total, position) => total + position.margin, 0));
+  const realizedPnl = roundMoney(closeTrades.reduce((total, trade) => total + trade.realizedPnl, 0));
+  const closeFees = roundMoney(closeTrades.reduce((total, trade) => total + trade.fee, 0));
   const account: PaperAccount = {
     ...store.account,
     equity: roundMoney(store.account.equity + marginReturned + realizedPnl),
     realizedPnl: roundMoney(store.account.realizedPnl + realizedPnl),
     totalFees: roundMoney(store.account.totalFees + closeFees)
   };
-  const closedPositionById = new Map(
-    closedPositions.map((position) => [position.id, position] as const)
-  );
+  const closedPositionById = new Map(closedPositions.map((position) => [position.id, position] as const));
 
   await saveStore({
     ...store,
     account,
-    positions: store.positions.map(
-      (position) => closedPositionById.get(position.id) ?? position
-    ),
+    positions: store.positions.map((position) => closedPositionById.get(position.id) ?? position),
     trades: [...store.trades, ...closeTrades]
   });
 
   return { account, positions: closedPositions, trades: closeTrades };
 }
 
-async function resolveMarkPrice(
-  exchangeId: ExchangeId,
-  symbol: string
-): Promise<number> {
+async function resolveMarkPrice(exchangeId: ExchangeId, symbol: string): Promise<number> {
   const exchange = new CcxtPublicExchange(exchangeId);
   try {
     const fundingRate = await exchange.getFundingRate(symbol);
@@ -281,9 +413,7 @@ async function resolveMarkPrice(
     // The caller receives the normalized price resolution error below.
   }
 
-  const mockRate = mockFundingRates.find(
-    (rate) => rate.exchange === exchangeId && rate.symbol === symbol
-  );
+  const mockRate = mockFundingRates.find((rate) => rate.exchange === exchangeId && rate.symbol === symbol);
   const mockMarkPrice = normalizePrice(mockRate?.markPrice);
   if (mockMarkPrice !== undefined) {
     return mockMarkPrice;
@@ -305,12 +435,13 @@ function createOpenPosition(params: {
   slippageBps: number;
   now: number;
   index: string;
+  strategyType: StrategyType;
+  legType: PaperLegType;
+  borrowRatePerDay?: number;
+  holdingDays?: number;
+  basisPnl?: number;
 }): PaperPosition {
-  const entryPrice = applyEntrySlippage(
-    params.side,
-    params.markPrice,
-    params.slippageBps
-  );
+  const entryPrice = applyEntrySlippage(params.side, params.markPrice, params.slippageBps);
   const liquidation = calculateLiquidation({
     side: params.side,
     markPrice: entryPrice,
@@ -319,7 +450,7 @@ function createOpenPosition(params: {
     maintMarginRate: params.maintMarginRate
   });
 
-  return {
+  return withCashCarryFields({
     id: createId("paper-position-" + params.index, params.now, 0),
     accountId: params.accountId,
     exchange: params.exchange,
@@ -333,7 +464,62 @@ function createOpenPosition(params: {
     maintMarginRate: params.maintMarginRate,
     liqPrice: roundMoney(liquidation.liqPrice),
     status: "open",
-    openedAt: params.now
+    openedAt: params.now,
+    strategyType: params.strategyType,
+    legType: params.legType
+  }, params);
+}
+
+function createSpotPosition(params: {
+  accountId: string;
+  exchange: ExchangeId;
+  symbol: string;
+  notional: number;
+  markPrice: number;
+  slippageBps: number;
+  now: number;
+  borrowRatePerDay: number;
+  holdingDays: number;
+  basisPnl: number;
+}): PaperPosition {
+  const entryPrice = applyEntrySlippage("long", params.markPrice, params.slippageBps);
+
+  return {
+    id: createId("paper-position-spot", params.now, 0),
+    accountId: params.accountId,
+    exchange: params.exchange,
+    symbol: params.symbol,
+    side: "long",
+    notional: params.notional,
+    leverage: 1,
+    entryPrice: roundMoney(entryPrice),
+    markPrice: roundMoney(params.markPrice),
+    margin: roundMoney(params.notional),
+    maintMarginRate: 0,
+    liqPrice: 0,
+    status: "open",
+    openedAt: params.now,
+    strategyType: "cash_and_carry",
+    legType: "spot",
+    borrowRatePerDay: params.borrowRatePerDay,
+    holdingDays: params.holdingDays,
+    basisPnl: params.basisPnl
+  };
+}
+
+function withCashCarryFields(
+  position: PaperPosition,
+  params: { borrowRatePerDay?: number; holdingDays?: number; basisPnl?: number }
+): PaperPosition {
+  if (position.strategyType !== "cash_and_carry") {
+    return position;
+  }
+
+  return {
+    ...position,
+    borrowRatePerDay: params.borrowRatePerDay,
+    holdingDays: params.holdingDays,
+    basisPnl: params.basisPnl
   };
 }
 
@@ -358,14 +544,46 @@ function createOpenTrade(params: {
     fee: params.fee,
     slippageCost: params.slippageCost,
     realizedPnl: 0,
-    createdAt: params.now
+    createdAt: params.now,
+    strategyType: params.position.strategyType,
+    legType: params.position.legType,
+    meta: {
+      legType: params.position.legType,
+      borrowRatePerDay: params.position.borrowRatePerDay,
+      holdingDays: params.position.holdingDays,
+      basisPnl: params.position.basisPnl
+    }
   };
 }
 
-function normalizeLeg(leg: PaperLegInput | undefined, name: string): {
-  exchange: ExchangeId;
-  side: Side;
-} {
+function getPairStrategyType(positions: PaperPosition[]): StrategyType {
+  return positions.some((position) => position.strategyType === "cash_and_carry")
+    ? "cash_and_carry"
+    : "cross_exchange_perp";
+}
+
+function calculateCashCarryAdjustment(positions: PaperPosition[]): { borrowCost: number; basisPnl: number } {
+  const base = positions.find((position) => position.strategyType === "cash_and_carry") ?? positions[0];
+  const result = calculateCashCarryNetReturn({
+    notional: base.notional,
+    fundingRate: 0,
+    intervalHours: 8,
+    cycles: 0,
+    basisPnl: base.basisPnl ?? DEFAULT_BASIS_PNL,
+    openFeeRate: 0,
+    closeFeeRate: 0,
+    slippageBps: 0,
+    borrowRatePerDay: base.borrowRatePerDay ?? DEFAULT_BORROW_RATE_PER_DAY,
+    holdingDays: base.holdingDays ?? DEFAULT_HOLDING_DAYS
+  });
+
+  return {
+    borrowCost: roundMoney(result.borrowCost),
+    basisPnl: roundMoney(result.basisPnl)
+  };
+}
+
+function normalizeLeg(leg: PaperLegInput | undefined, name: string): { exchange: ExchangeId; side: Side } {
   if (!leg) {
     throw new Error(name + " is required");
   }
@@ -392,24 +610,12 @@ function normalizeSide(side: string): Side {
   throw new Error("Unsupported paper side: " + side);
 }
 
-function applyEntrySlippage(
-  side: Side,
-  markPrice: number,
-  slippageBps: number
-): number {
-  return side === "long"
-    ? markPrice * (1 + slippageBps / 10000)
-    : markPrice * (1 - slippageBps / 10000);
+function applyEntrySlippage(side: Side, markPrice: number, slippageBps: number): number {
+  return side === "long" ? markPrice * (1 + slippageBps / 10000) : markPrice * (1 - slippageBps / 10000);
 }
 
-function applyExitSlippage(
-  side: Side,
-  markPrice: number,
-  slippageBps: number
-): number {
-  return side === "long"
-    ? markPrice * (1 - slippageBps / 10000)
-    : markPrice * (1 + slippageBps / 10000);
+function applyExitSlippage(side: Side, markPrice: number, slippageBps: number): number {
+  return side === "long" ? markPrice * (1 - slippageBps / 10000) : markPrice * (1 + slippageBps / 10000);
 }
 
 function normalizePrice(value: number | undefined): number | undefined {

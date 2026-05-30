@@ -58,6 +58,8 @@ export type PaperAccount = {
   totalFees: number;
 };
 
+export type PaperLegType = "spot" | "perp";
+
 export type PaperPosition = {
   id: string;
   accountId: string;
@@ -74,6 +76,11 @@ export type PaperPosition = {
   status: PaperPositionStatus;
   openedAt: number;
   closedAt?: number;
+  strategyType?: StrategyType;
+  legType?: PaperLegType;
+  borrowRatePerDay?: number;
+  holdingDays?: number;
+  basisPnl?: number;
 };
 
 export type Trade = {
@@ -90,6 +97,9 @@ export type Trade = {
   slippageCost: number;
   realizedPnl: number;
   createdAt: number;
+  strategyType?: StrategyType;
+  legType?: PaperLegType;
+  meta?: Record<string, unknown>;
 };
 
 export type FundingSettlement = {
@@ -142,7 +152,7 @@ export type HedgeabilityVerdict = {
 
 export type StrategyType = "cross_exchange_perp" | "cash_and_carry";
 
-export type CashCarryInput = {
+export type CashCarryParams = {
   notional: number;
   fundingRate: number;
   intervalHours: number;
@@ -154,6 +164,8 @@ export type CashCarryInput = {
   borrowRatePerDay?: number;
   holdingDays: number;
 };
+
+export type CashCarryInput = CashCarryParams;
 
 export type CashCarryResult = {
   grossFunding: number;

@@ -6,6 +6,10 @@ export type Side = "long" | "short";
 
 export type Liquidity = "high" | "mid" | "low";
 
+export type StrategyType = "cross_exchange_perp" | "cash_and_carry";
+
+export type PaperLegType = "spot" | "perp";
+
 export type ArbOpportunity = {
   symbol: string;
   legA: {
@@ -28,6 +32,7 @@ export type ArbOpportunity = {
   nextFundingTime?: number;
   fakeOpportunity: boolean;
   direction: string;
+  strategyType?: StrategyType;
 };
 
 export type FundingRate = {
@@ -120,6 +125,11 @@ export type PaperPosition = {
   openedAt: number;
   closedAt?: number;
   unrealizedPnl?: number;
+  strategyType?: StrategyType;
+  legType?: PaperLegType;
+  borrowRatePerDay?: number;
+  holdingDays?: number;
+  basisPnl?: number;
 };
 
 export type PaperTrade = {
@@ -136,6 +146,9 @@ export type PaperTrade = {
   slippageCost: number;
   realizedPnl: number;
   createdAt: number;
+  strategyType?: StrategyType;
+  legType?: PaperLegType;
+  meta?: Record<string, unknown>;
 };
 
 export type FundingSettlement = {

@@ -21,6 +21,9 @@ export function PositionCard({ position }: PositionCardProps) {
         <div>
           <strong>{position.symbol}</strong>
           <span>{position.exchange} · {position.side}</span>
+          {position.strategyType ? (
+            <span className="strategy-badge">{formatStrategyType(position.strategyType)}</span>
+          ) : null}
         </div>
         <span className={`status status--${position.status === "open" ? "ok" : "fake"}`}>
           {position.status}
@@ -75,4 +78,8 @@ function formatMoney(value: number): string {
 
 function formatDate(value: number): string {
   return new Date(value).toLocaleString();
+}
+
+function formatStrategyType(strategyType: "cross_exchange_perp" | "cash_and_carry"): string {
+  return strategyType === "cash_and_carry" ? "现货-永续" : "跨所永续";
 }

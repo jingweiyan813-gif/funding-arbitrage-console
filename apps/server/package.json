@@ -10,9 +10,10 @@
   },
   "dependencies": {
     "@funding-arbitrage-console/core": "0.0.0",
+    "@types/express": "^5.0.2",
     "ccxt": "^4.5.56",
     "express": "^5.1.0",
-    "@types/express": "^5.0.2"
+    "openai": "^6.39.1"
   },
   "devDependencies": {
     "@types/node": "^22.15.3",

@@ -225,17 +225,36 @@ curl 'http://localhost:3001/api/mining/opportunities?limit=20&includeTraps=false
 
 
 
-## Agent-T0 AI 套利教练
+## Agent-T1 AI 套利教练
 
-当前新增最小版 rule-based AI Coach Agent，用于比赛演示中的 Agent 层表达。
+当前 AI Coach Agent 支持两种模式：默认 rule-based；配置后端 LLM 环境变量后，可通过 OpenAI-compatible API 调用大模型。当前目标 provider 是小米 MiMo。
 
 已实现：
 
 - 后端 API：POST /api/agent/explain。
 - 支持解释机会、解释陷阱、生成模拟计划、生成复盘总结。
-- 前端“AI 教练”页面提供四个示例按钮，并展示 title、summary、riskLevel、bullets、nextActions 和 disclaimer。
-- 当前不接 OpenAI / Claude / Gemini SDK，不读取 LLM_API_KEY。
+- 没有 LLM_API_KEY 时自动使用规则 Agent，返回 source = rule_based。
+- 配置 LLM_API_KEY 后尝试使用大模型 Agent，返回 source = llm。
+- LLM 调用失败或 JSON 解析失败时，自动 fallback 到规则 Agent，并返回 warning。
+- 前端“AI 教练”页面会显示当前 Agent source；MiMo provider 会显示“小米 MiMo Agent”。
 - Agent 只做学习和模拟解释，不下单、不连接真实账户、不提供投资建议。
+
+启用小米 MiMo Agent：
+
+1. 复制环境变量示例：cp .env.example .env。
+2. 在 .env 中填写 LLM_API_KEY，并确认：
+   - LLM_PROVIDER=mimo
+   - LLM_BASE_URL=https://api.xiaomimimo.com/v1
+   - LLM_MODEL=mimo-v2.5-pro
+3. 重启 server。
+
+注意：LLM_API_KEY 是大模型服务 key，不是交易所 key。不要提交 .env，不要把 key 写入 README、日志或前端。
+
+OpenAI-compatible 示例也支持：
+
+- LLM_PROVIDER=openai
+- LLM_BASE_URL=https://api.openai.com/v1
+- LLM_MODEL=gpt-4o-mini
 
 示例：
 

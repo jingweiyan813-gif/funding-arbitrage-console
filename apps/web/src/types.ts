@@ -226,9 +226,16 @@ export type AgentResult = {
   disclaimer: string;
 };
 
+export type AgentSource = "rule_based" | "llm";
+
+export type AgentProvider = "mimo" | "openai" | "openai_compatible";
+
 export type AgentResponse = {
   ok: boolean;
-  source: "rule_based" | "llm";
+  source: AgentSource;
+  provider?: AgentProvider;
+  model?: string;
+  warning?: string;
   data: AgentResult;
   error?: string;
 };

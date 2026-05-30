@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { explainWithAgent } from "../api/client";
 import { CoachPanel } from "../components/CoachPanel";
-import type { AgentMode, AgentResult } from "../types";
+import type { AgentMode, AgentProvider, AgentResult, AgentSource } from "../types";
 
 type CoachExample = {
   label: string;
@@ -65,15 +65,24 @@ export function AICoachScreen() {
   const [activeMode, setActiveMode] = useState<AgentMode | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [source, setSource] = useState<AgentSource | null>(null);
+  const [provider, setProvider] = useState<AgentProvider | undefined>();
+  const [model, setModel] = useState<string | undefined>();
+  const [warning, setWarning] = useState<string | undefined>();
 
   async function runExample(example: CoachExample) {
     setIsLoading(true);
     setErrorMessage(null);
     setActiveMode(example.mode);
+    setWarning(undefined);
 
     try {
       const response = await explainWithAgent(example.mode, example.payload);
       setResult(response.data);
+      setSource(response.source);
+      setProvider(response.provider);
+      setModel(response.model);
+      setWarning(response.warning);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "AI 教练解释失败");
     } finally {
@@ -87,7 +96,7 @@ export function AICoachScreen() {
         <div>
           <span className="section-kicker">AI Agent Layer</span>
           <h2>AI 套利教练</h2>
-          <p>解释机会、识别陷阱、生成模拟计划和复盘总结。当前版本是 rule-based Agent，不接大模型 API。</p>
+          <p>解释机会、识别陷阱、生成模拟计划和复盘总结。没有 LLM key 时使用规则 Agent，有 key 时可切换为大模型 Agent。</p>
         </div>
       </section>
 
@@ -106,7 +115,15 @@ export function AICoachScreen() {
         ))}
       </section>
 
-      <CoachPanel errorMessage={errorMessage} isLoading={isLoading} result={result} />
+      <CoachPanel
+        errorMessage={errorMessage}
+        isLoading={isLoading}
+        model={model}
+        provider={provider}
+        result={result}
+        source={source}
+        warning={warning}
+      />
     </main>
   );
 }

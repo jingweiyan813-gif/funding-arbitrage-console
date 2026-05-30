@@ -1,4 +1,9 @@
+import OpenAI from "openai";
+
+type AgentMode = "opportunity" | "trap" | "simulation_plan" | "paper_summary";
 type CoachRiskLevel = "low" | "medium" | "high";
+type CoachSource = "rule_based" | "llm";
+type CoachProvider = "mimo" | "openai" | "openai_compatible";
 
 type CoachResult = {
   title: string;
@@ -11,7 +16,112 @@ type CoachResult = {
 
 type CoachPayload = Record<string, unknown>;
 
+type CoachAgentResponse = {
+  source: CoachSource;
+  provider?: CoachProvider;
+  model?: string;
+  warning?: string;
+  data: CoachResult;
+};
+
 const DISCLAIMER = "仅用于学习和模拟，不构成投资建议。";
+const DEFAULT_MIMO_BASE_URL = "https://api.xiaomimimo.com/v1";
+const DEFAULT_MIMO_MODEL = "mimo-v2.5-pro";
+const SYSTEM_PROMPT = [
+  "你是一个资金费率套利教育教练 Agent。",
+  "你只解释机会、风险和模拟建议。",
+  "你不能给投资建议。",
+  "你不能鼓励真实下单。",
+  "你不能承诺收益。",
+  "你必须提醒用户这是学习和模拟工具。",
+  "你必须输出严格 JSON，不要输出 Markdown。"
+].join("\\n");
+
+let cachedClient: OpenAI | null = null;
+let cachedBaseURL = "";
+let cachedApiKey = "";
+
+export function hasLlmConfig(): boolean {
+  return Boolean(process.env.LLM_API_KEY?.trim());
+}
+
+export function getLlmClient(): OpenAI {
+  const apiKey = process.env.LLM_API_KEY?.trim();
+  if (!apiKey) {
+    throw new Error("LLM_API_KEY is not configured");
+  }
+
+  const baseURL = getLlmBaseUrl();
+  if (!cachedClient || cachedBaseURL !== baseURL || cachedApiKey !== apiKey) {
+    cachedClient = new OpenAI({ apiKey, baseURL });
+    cachedBaseURL = baseURL;
+    cachedApiKey = apiKey;
+  }
+
+  return cachedClient;
+}
+
+export function explainWithRuleBased(mode: AgentMode, payload: CoachPayload): CoachAgentResponse {
+  return {
+    source: "rule_based",
+    data: runRuleBased(mode, payload)
+  };
+}
+
+export async function explainWithLlm(mode: AgentMode, payload: CoachPayload): Promise<CoachAgentResponse> {
+  const client = getLlmClient();
+  const provider = getLlmProvider();
+  const model = getLlmModel();
+  const completion = await client.chat.completions.create({
+    model,
+    messages: [
+      { role: "system", content: SYSTEM_PROMPT },
+      {
+        role: "user",
+        content: JSON.stringify({
+          mode,
+          payload,
+          outputSchema: {
+            title: "string",
+            summary: "string",
+            bullets: "string[]",
+            riskLevel: "low | medium | high",
+            nextActions: "string[]",
+            disclaimer: "string"
+          }
+        })
+      }
+    ],
+    temperature: 0.2
+  });
+
+  const content = completion.choices[0]?.message?.content;
+  if (!content) {
+    throw new Error("Empty LLM response");
+  }
+
+  return {
+    source: "llm",
+    provider,
+    model,
+    data: normalizeCoachResult(JSON.parse(extractJson(content)))
+  };
+}
+
+export async function explainWithAgent(mode: AgentMode, payload: CoachPayload): Promise<CoachAgentResponse> {
+  if (!hasLlmConfig()) {
+    return explainWithRuleBased(mode, payload);
+  }
+
+  try {
+    return await explainWithLlm(mode, payload);
+  } catch {
+    return {
+      ...explainWithRuleBased(mode, payload),
+      warning: "LLM unavailable, used rule-based fallback"
+    };
+  }
+}
 
 export function explainOpportunity(payload: CoachPayload): CoachResult {
   const riskLevel = assessRisk(payload);
@@ -101,6 +211,71 @@ export function summarizePaperState(payload: CoachPayload): CoachResult {
     ],
     disclaimer: DISCLAIMER
   };
+}
+
+function runRuleBased(mode: AgentMode, payload: CoachPayload): CoachResult {
+  if (mode === "opportunity") return explainOpportunity(payload);
+  if (mode === "trap") return explainTrap(payload);
+  if (mode === "simulation_plan") return suggestSimulationPlan(payload);
+  return summarizePaperState(payload);
+}
+
+function getLlmProvider(): CoachProvider {
+  const provider = process.env.LLM_PROVIDER?.trim().toLowerCase();
+  if (provider === "mimo") return "mimo";
+  if (provider === "openai") return "openai";
+  return "openai_compatible";
+}
+
+function getLlmBaseUrl(): string {
+  const configured = process.env.LLM_BASE_URL?.trim();
+  if (configured) return configured;
+  return getLlmProvider() === "mimo" ? DEFAULT_MIMO_BASE_URL : "https://api.openai.com/v1";
+}
+
+function getLlmModel(): string {
+  const configured = process.env.LLM_MODEL?.trim();
+  if (configured) return configured;
+  return getLlmProvider() === "mimo" ? DEFAULT_MIMO_MODEL : "gpt-4o-mini";
+}
+
+function normalizeCoachResult(value: unknown): CoachResult {
+  if (!value || typeof value !== "object") {
+    throw new Error("Invalid LLM JSON");
+  }
+  const record = value as Record<string, unknown>;
+  const riskLevel = getString(record.riskLevel);
+  if (riskLevel !== "low" && riskLevel !== "medium" && riskLevel !== "high") {
+    throw new Error("Invalid LLM riskLevel");
+  }
+
+  return {
+    title: getRequiredString(record.title, "title"),
+    summary: getRequiredString(record.summary, "summary"),
+    bullets: getStringArray(record.bullets, "bullets"),
+    riskLevel,
+    nextActions: getStringArray(record.nextActions, "nextActions"),
+    disclaimer: getRequiredString(record.disclaimer, "disclaimer")
+  };
+}
+
+function extractJson(content: string): string {
+  const trimmed = content.trim();
+  if (trimmed.startsWith("{") && trimmed.endsWith("}")) return trimmed;
+  const start = trimmed.indexOf("{");
+  const end = trimmed.lastIndexOf("}");
+  if (start >= 0 && end > start) return trimmed.slice(start, end + 1);
+  throw new Error("LLM response is not JSON");
+}
+
+function getRequiredString(value: unknown, field: string): string {
+  if (typeof value === "string" && value.trim()) return value;
+  throw new Error("Invalid LLM field: " + field);
+}
+
+function getStringArray(value: unknown, field: string): string[] {
+  if (Array.isArray(value) && value.every((item) => typeof item === "string")) return value;
+  throw new Error("Invalid LLM field: " + field);
 }
 
 function assessRisk(payload: CoachPayload): CoachRiskLevel {

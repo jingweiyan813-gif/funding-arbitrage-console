@@ -2162,3 +2162,130 @@ select:focus-visible {
   color: var(--muted-soft);
   font-size: 12px;
 }
+
+
+.monitor-screen {
+  display: grid;
+  gap: 22px;
+}
+
+.monitor-hero {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.monitor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.monitor-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.monitor-metric-card,
+.monitor-panel {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.monitor-metric-card {
+  display: grid;
+  gap: 8px;
+  min-height: 118px;
+  padding: 20px;
+}
+
+.monitor-metric-card span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.monitor-metric-card strong {
+  color: var(--text);
+  font-size: 32px;
+  font-variant-numeric: tabular-nums;
+}
+
+.monitor-metric-card--critical {
+  border-color: rgba(186, 26, 26, 0.24);
+  background: #fff5f3;
+}
+
+.monitor-metric-card--warning {
+  border-color: rgba(183, 113, 13, 0.28);
+  background: #fff8e8;
+}
+
+.monitor-metric-card--info {
+  border-color: rgba(52, 104, 190, 0.22);
+  background: #eef5ff;
+}
+
+.monitor-panel {
+  overflow: hidden;
+}
+
+.monitor-table td {
+  vertical-align: top;
+}
+
+.monitor-level {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.monitor-level--critical {
+  color: var(--error);
+  background: #ffedea;
+}
+
+.monitor-level--warning {
+  color: #8a5a00;
+  background: #fff2cf;
+}
+
+.monitor-level--info {
+  color: #1b5fa7;
+  background: #eaf3ff;
+}
+
+.monitor-alert-row--critical td:first-child {
+  border-left: 4px solid var(--error);
+}
+
+.monitor-alert-row--warning td:first-child {
+  border-left: 4px solid #d79000;
+}
+
+.monitor-alert-row--info td:first-child {
+  border-left: 4px solid #4f8fd8;
+}
+
+@media (max-width: 920px) {
+  .monitor-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .monitor-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 620px) {
+  .monitor-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -6,6 +6,9 @@ import { RiskModal } from "./components/RiskModal";
 import { CalculatorScreen } from "./screens/CalculatorScreen";
 import { EducationScreen } from "./screens/EducationScreen";
 import { LiquidationScreen } from "./screens/LiquidationScreen";
+import { LiveAccountComingSoon } from "./screens/LiveAccountComingSoon";
+import { MonitorScreen } from "./screens/MonitorScreen";
+import { OpportunityMiningScreen } from "./screens/OpportunityMiningScreen";
 import { PaperTradingScreen } from "./screens/PaperTradingScreen";
 import { ScannerScreen } from "./screens/ScannerScreen";
 import type {
@@ -18,7 +21,7 @@ import type {
 import "./style.css";
 
 function App() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>("scanner");
+  const [activeTab, setActiveTab] = useState<ActiveTab>("opportunityMining");
   const [calculatorSeed, setCalculatorSeed] = useState<CalculatorSeed | null>(
     null
   );
@@ -65,6 +68,13 @@ function App() {
     <>
       <RiskModal />
       <AppShell activeTab={activeTab} onNavigate={setActiveTab}>
+        {activeTab === "opportunityMining" ? (
+          <OpportunityMiningScreen
+            onCalculate={handleCalculate}
+            onLiquidation={handleLiquidation}
+            onPaperTrade={handlePaperTrade}
+          />
+        ) : null}
         {activeTab === "scanner" ? (
           <ScannerScreen
             onCalculate={handleCalculate}
@@ -85,6 +95,8 @@ function App() {
           />
         ) : null}
         {activeTab === "paper" ? <PaperTradingScreen seed={paperSeed} /> : null}
+        {activeTab === "monitor" ? <MonitorScreen /> : null}
+        {activeTab === "liveAccount" ? <LiveAccountComingSoon /> : null}
         {activeTab === "education" ? <EducationScreen /> : null}
       </AppShell>
     </>

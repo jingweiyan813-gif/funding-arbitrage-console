@@ -42,6 +42,9 @@ export function PaperTradingScreen({ seed }: PaperTradingScreenProps) {
   const [leverage, setLeverage] = useState("3");
   const [slippageBps, setSlippageBps] = useState("5");
   const [feeRate, setFeeRate] = useState("0.0006");
+  const [borrowRatePerDay, setBorrowRatePerDay] = useState("0.0002");
+  const [holdingDays, setHoldingDays] = useState("1");
+  const [basisPnl, setBasisPnl] = useState("0");
   const [isLoading, setIsLoading] = useState(true);
   const [isWorking, setIsWorking] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -76,6 +79,9 @@ export function PaperTradingScreen({ seed }: PaperTradingScreenProps) {
   useEffect(() => {
     void loadPaperData();
   }, [loadPaperData]);
+
+  const selectedStrategyType = seed?.strategyType ?? "cross_exchange_perp";
+  const isCashCarrySeed = selectedStrategyType === "cash_and_carry";
 
   const pairToClose = useMemo(() => findPairToClose(openPositions), [openPositions]);
 
@@ -114,7 +120,11 @@ export function PaperTradingScreen({ seed }: PaperTradingScreenProps) {
         notional: Number(notional),
         leverage: Number(leverage),
         slippageBps: Number(slippageBps),
-        feeRate: Number(feeRate)
+        feeRate: Number(feeRate),
+        strategyType: selectedStrategyType,
+        borrowRatePerDay: Number(borrowRatePerDay),
+        holdingDays: Number(holdingDays),
+        basisPnl: Number(basisPnl)
       })
     );
   }
@@ -200,6 +210,14 @@ export function PaperTradingScreen({ seed }: PaperTradingScreenProps) {
             <span>{seed.symbol}</span>
           </div>
           <p className="paper-note">成交价基于公开行情 markPrice / ticker fallback，若实时行情不可用，可能使用 fallback 数据用于演示。</p>
+          <div className="strategy-type-callout">
+            <strong>策略类型：{formatStrategyType(selectedStrategyType)}</strong>
+            {isCashCarrySeed ? (
+              <span>这是模拟现货腿 + 永续腿，不执行真实现货买卖或借币。</span>
+            ) : (
+              <span>沿用现有跨所永续双腿模拟流程。</span>
+            )}
+          </div>
           <div className="paper-opportunity-summary">
             <div>
               <strong>{seed.legA.exchange}</strong>
@@ -215,6 +233,13 @@ export function PaperTradingScreen({ seed }: PaperTradingScreenProps) {
             <FormField label="leverage" onChange={setLeverage} type="number" value={leverage} />
             <FormField label="slippageBps" onChange={setSlippageBps} type="number" value={slippageBps} />
             <FormField label="feeRate" onChange={setFeeRate} type="number" value={feeRate} />
+            {isCashCarrySeed ? (
+              <>
+                <FormField label="borrowRatePerDay" onChange={setBorrowRatePerDay} type="number" value={borrowRatePerDay} />
+                <FormField label="holdingDays" onChange={setHoldingDays} type="number" value={holdingDays} />
+                <FormField label="basisPnl" onChange={setBasisPnl} type="number" value={basisPnl} />
+              </>
+            ) : null}
           </div>
           <button className="refresh-button paper-primary-action" disabled={isWorking} onClick={handleOpen} type="button">
             确认模拟建仓
@@ -311,4 +336,10 @@ function findPairToClose(positions: PaperPosition[]): PaperPosition[] {
 
 function formatPercent(value: number, digits: number): string {
   return `${(value * 100).toFixed(digits)}%`;
+}
+
+function formatStrategyType(strategyType: "cross_exchange_perp" | "cash_and_carry"): string {
+  return strategyType === "cash_and_carry"
+    ? "现货-永续 Cash-and-Carry"
+    : "跨所永续";
 }

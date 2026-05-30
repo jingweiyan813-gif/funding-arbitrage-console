@@ -11,13 +11,34 @@ type NavItem = {
   hint?: string;
 };
 
-const navItems: NavItem[] = [
-  { label: "总览", tab: "scanner", hint: "Dashboard" },
-  { label: "机会扫描", tab: "scanner", hint: "Opportunities" },
-  { label: "收益计算", tab: "calculator", hint: "Calculator" },
-  { label: "爆仓风险", tab: "liquidation", hint: "Liquidation" },
-  { label: "模拟盘", tab: "paper", hint: "Paper Trading" },
-  { label: "学习说明", tab: "education", hint: "Education" }
+type NavGroup = {
+  title: string;
+  items: NavItem[];
+};
+
+const navGroups: NavGroup[] = [
+  {
+    title: "入口层",
+    items: [
+      { label: "机会挖掘", tab: "opportunityMining", hint: "Mining" },
+      { label: "标准教学", tab: "scanner", hint: "Scanner" }
+    ]
+  },
+  {
+    title: "分析工具层",
+    items: [
+      { label: "收益计算", tab: "calculator", hint: "Calculator" },
+      { label: "爆仓风险", tab: "liquidation", hint: "Liquidation" }
+    ]
+  },
+  {
+    title: "账本层",
+    items: [
+      { label: "模拟盘", tab: "paper", hint: "Paper Trading" },
+      { label: "监控 / 告警", tab: "monitor", hint: "Monitor" },
+      { label: "真实账户", tab: "liveAccount", hint: "Coming Soon" }
+    ]
+  }
 ];
 
 export function Sidebar({ activeTab, onNavigate }: SidebarProps) {
@@ -28,16 +49,21 @@ export function Sidebar({ activeTab, onNavigate }: SidebarProps) {
         <span>Demo Mode Active</span>
       </div>
       <nav className="sidebar-nav" aria-label="Dashboard navigation">
-        {navItems.map((item) => (
-          <button
-            className={activeTab === item.tab ? "active" : ""}
-            key={item.label}
-            onClick={() => onNavigate(item.tab)}
-            type="button"
-          >
-            <span>{item.label}</span>
-            {item.hint ? <small>{item.hint}</small> : null}
-          </button>
+        {navGroups.map((group) => (
+          <section className="sidebar-nav-group" key={group.title}>
+            <span className="sidebar-group-title">{group.title}</span>
+            {group.items.map((item) => (
+              <button
+                className={activeTab === item.tab ? "active" : ""}
+                key={item.label}
+                onClick={() => onNavigate(item.tab)}
+                type="button"
+              >
+                <span>{item.label}</span>
+                {item.hint ? <small>{item.hint}</small> : null}
+              </button>
+            ))}
+          </section>
         ))}
       </nav>
       <div className="sidebar-upgrade-card">

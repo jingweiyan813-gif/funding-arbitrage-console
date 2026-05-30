@@ -5,13 +5,14 @@ type PositionCardProps = {
 };
 
 export function PositionCard({ position }: PositionCardProps) {
-  const buffer = calculateBuffer(position);
+  const isSpotCashCarryLeg = position.strategyType === "cash_and_carry" && position.legType === "spot";
+  const buffer = isSpotCashCarryLeg ? null : calculateBuffer(position);
   const riskClass =
     position.status === "liquidated"
       ? "critical"
-      : buffer < 5
+      : buffer !== null && buffer < 5
         ? "critical"
-        : buffer < 10
+        : buffer !== null && buffer < 10
           ? "warning"
           : "safe";
 
@@ -21,6 +22,9 @@ export function PositionCard({ position }: PositionCardProps) {
         <div>
           <strong>{position.symbol}</strong>
           <span>{position.exchange} · {position.side}</span>
+          {position.strategyType ? (
+            <span className="strategy-badge">{formatStrategyType(position.strategyType)}</span>
+          ) : null}
         </div>
         <span className={`status status--${position.status === "open" ? "ok" : "fake"}`}>
           {position.status}
@@ -32,14 +36,17 @@ export function PositionCard({ position }: PositionCardProps) {
         <Metric label="开仓价" value={formatMoney(position.entryPrice)} />
         <Metric label="标记价" value={formatMoney(position.markPrice)} />
         <Metric label="保证金" value={formatMoney(position.margin)} />
-        <Metric label="强平价" value={formatMoney(position.liqPrice)} />
+        <Metric label="强平价" value={isSpotCashCarryLeg ? "不适用" : formatMoney(position.liqPrice)} />
         <Metric
           label="浮动盈亏"
           tone={position.unrealizedPnl}
           value={formatMoney(position.unrealizedPnl ?? 0)}
         />
-        <Metric label="安全垫" value={`${buffer.toFixed(2)}%`} />
+        <Metric label="安全垫" value={buffer === null ? "现货腿无强平" : `${buffer.toFixed(2)}%`} />
       </div>
+      {isSpotCashCarryLeg ? (
+        <small>现货腿为模拟资金占用，不执行真实现货买卖，也不计算强平价。</small>
+      ) : null}
       <small>开仓时间：{formatDate(position.openedAt)}</small>
     </article>
   );
@@ -75,4 +82,8 @@ function formatMoney(value: number): string {
 
 function formatDate(value: number): string {
   return new Date(value).toLocaleString();
+}
+
+function formatStrategyType(strategyType: "cross_exchange_perp" | "cash_and_carry"): string {
+  return strategyType === "cash_and_carry" ? "现货-永续" : "跨所永续";
 }

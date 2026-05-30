@@ -130,7 +130,10 @@ export async function listLedgerEvents(): Promise<LedgerEvent[]> {
       price: trade.price,
       notional: trade.notional,
       fee: trade.fee,
-      slippageCost: trade.slippageCost
+      slippageCost: trade.slippageCost,
+      strategyType: trade.strategyType,
+      legType: trade.legType,
+      ...(trade.meta ?? {})
     }
   }));
   const fundingEvents = store.fundingSettlements.map<LedgerEvent>(

@@ -6,6 +6,10 @@ export type Side = "long" | "short";
 
 export type Liquidity = "high" | "mid" | "low";
 
+export type StrategyType = "cross_exchange_perp" | "cash_and_carry";
+
+export type PaperLegType = "spot" | "perp";
+
 export type ArbOpportunity = {
   symbol: string;
   legA: {
@@ -28,6 +32,7 @@ export type ArbOpportunity = {
   nextFundingTime?: number;
   fakeOpportunity: boolean;
   direction: string;
+  strategyType?: StrategyType;
 };
 
 export type FundingRate = {
@@ -59,7 +64,15 @@ export type FundingRatesResponse = {
   data: FundingRate[];
 };
 
-export type ActiveTab = "scanner" | "calculator" | "liquidation" | "paper" | "education";
+export type ActiveTab =
+  | "opportunityMining"
+  | "scanner"
+  | "calculator"
+  | "liquidation"
+  | "paper"
+  | "monitor"
+  | "liveAccount"
+  | "education";
 
 export type CalculatorSeed = {
   symbol: string;
@@ -112,6 +125,11 @@ export type PaperPosition = {
   openedAt: number;
   closedAt?: number;
   unrealizedPnl?: number;
+  strategyType?: StrategyType;
+  legType?: PaperLegType;
+  borrowRatePerDay?: number;
+  holdingDays?: number;
+  basisPnl?: number;
 };
 
 export type PaperTrade = {
@@ -128,6 +146,9 @@ export type PaperTrade = {
   slippageCost: number;
   realizedPnl: number;
   createdAt: number;
+  strategyType?: StrategyType;
+  legType?: PaperLegType;
+  meta?: Record<string, unknown>;
 };
 
 export type FundingSettlement = {
@@ -151,3 +172,44 @@ export type LedgerEvent = {
 };
 
 export type PaperSeed = ArbOpportunity;
+
+
+export type MiningCategory = "true" | "conditional" | "trap";
+
+export type MiningSource = "live" | "partial" | "fallback_snapshot";
+
+export type MinedOpportunity = {
+  symbol: string;
+  exchange: ExchangeId;
+  rawRate: number;
+  intervalHours: number;
+  dailyRate: number;
+  annualizedRate: number;
+  change24h?: number;
+  intervalShortened: boolean;
+  trendDirection: "long_crowded" | "short_crowded";
+  singleSidedStrength: "mild" | "clear" | "severe";
+  hedgeability: {
+    hedgeable: "true" | "false" | "conditional";
+    secondLegExists: boolean;
+    spotBorrow: {
+      available: boolean | "unknown";
+      rate?: number;
+    };
+    liquidityOk: boolean;
+    depthUsd?: number;
+    marginAssetRisk: "low" | "high";
+    reason: string;
+  };
+  category: MiningCategory;
+  strategyType: "cross_exchange_perp" | "cash_and_carry";
+  reason: string;
+};
+
+export type MiningResponse = {
+  ok: boolean;
+  source: MiningSource;
+  updatedAt: string;
+  errors: Record<string, string>;
+  data: MinedOpportunity[];
+};

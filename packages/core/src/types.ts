@@ -58,6 +58,8 @@ export type PaperAccount = {
   totalFees: number;
 };
 
+export type PaperLegType = "spot" | "perp";
+
 export type PaperPosition = {
   id: string;
   accountId: string;
@@ -74,6 +76,11 @@ export type PaperPosition = {
   status: PaperPositionStatus;
   openedAt: number;
   closedAt?: number;
+  strategyType?: StrategyType;
+  legType?: PaperLegType;
+  borrowRatePerDay?: number;
+  holdingDays?: number;
+  basisPnl?: number;
 };
 
 export type Trade = {
@@ -90,6 +97,9 @@ export type Trade = {
   slippageCost: number;
   realizedPnl: number;
   createdAt: number;
+  strategyType?: StrategyType;
+  legType?: PaperLegType;
+  meta?: Record<string, unknown>;
 };
 
 export type FundingSettlement = {
@@ -101,4 +111,69 @@ export type FundingSettlement = {
   rate: number;
   amount: number;
   createdAt: number;
+};
+
+
+export type DiscoveryCandidate = {
+  symbol: string;
+  exchange: string;
+  rawRate: number;
+  intervalHours: number;
+  dailyRate: number;
+  annualizedRate: number;
+  change24h?: number;
+  change7d?: number;
+  intervalShortened: boolean;
+  trendDirection: "long_crowded" | "short_crowded";
+  singleSidedStrength: "mild" | "clear" | "severe";
+};
+
+export type HedgeabilityInput = {
+  secondLegExists: boolean;
+  spotBorrowAvailable?: boolean;
+  spotBorrowRate?: number;
+  liquidityOk: boolean;
+  depthUsd?: number;
+  marginAssetRisk?: "low" | "high";
+};
+
+export type HedgeabilityVerdict = {
+  hedgeable: "true" | "false" | "conditional";
+  secondLegExists: boolean;
+  spotBorrow: {
+    available: boolean | "unknown";
+    rate?: number;
+  };
+  liquidityOk: boolean;
+  depthUsd?: number;
+  marginAssetRisk: "low" | "high";
+  reason: string;
+};
+
+export type StrategyType = "cross_exchange_perp" | "cash_and_carry";
+
+export type CashCarryParams = {
+  notional: number;
+  fundingRate: number;
+  intervalHours: number;
+  cycles: number;
+  basisPnl?: number;
+  openFeeRate: number;
+  closeFeeRate: number;
+  slippageBps: number;
+  borrowRatePerDay?: number;
+  holdingDays: number;
+};
+
+export type CashCarryInput = CashCarryParams;
+
+export type CashCarryResult = {
+  grossFunding: number;
+  basisPnl: number;
+  openFees: number;
+  closeFees: number;
+  slippageCost: number;
+  borrowCost: number;
+  netProfit: number;
+  netApr: number;
 };

@@ -10,10 +10,13 @@ type AppShellProps = {
 };
 
 const titleByTab: Record<ActiveTab, string> = {
-  scanner: "Funding Rate Arbitrage",
+  opportunityMining: "Opportunity Mining",
+  scanner: "Standard Learning",
   calculator: "Profit Calculator",
   liquidation: "Liquidation Risk",
   paper: "Paper Trading",
+  monitor: "Monitor & Alerts",
+  liveAccount: "Live Account",
   education: "Education Layer"
 };
 

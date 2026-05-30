@@ -1,3 +1,4 @@
+import { config as loadEnv } from "dotenv";
 import express, { type Request, type Response } from "express";
 import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -17,6 +18,8 @@ const port = process.env.PORT || 3001;
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const webDistPath = resolve(__dirname, "../../web/dist");
 const webIndexPath = resolve(webDistPath, "index.html");
+
+loadEnv({ path: resolve(__dirname, "../../../.env"), quiet: true });
 
 app.use(express.json());
 app.use("/api", healthRouter);

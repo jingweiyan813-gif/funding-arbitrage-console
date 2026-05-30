@@ -2,9 +2,15 @@ import type { ArbOpportunity } from "../types";
 
 type OpportunityTableProps = {
   opportunities: ArbOpportunity[];
+  onCalculate?: (opportunity: ArbOpportunity) => void;
+  onLiquidation?: (opportunity: ArbOpportunity) => void;
 };
 
-export function OpportunityTable({ opportunities }: OpportunityTableProps) {
+export function OpportunityTable({
+  opportunities,
+  onCalculate,
+  onLiquidation
+}: OpportunityTableProps) {
   if (opportunities.length === 0) {
     return (
       <div className="empty-state">
@@ -31,6 +37,7 @@ export function OpportunityTable({ opportunities }: OpportunityTableProps) {
             <th>估算年化</th>
             <th>净年化</th>
             <th>状态</th>
+            <th>操作</th>
           </tr>
         </thead>
         <tbody>
@@ -80,6 +87,22 @@ export function OpportunityTable({ opportunities }: OpportunityTableProps) {
                 ) : (
                   <span className="status status--ok">可观察</span>
                 )}
+              </td>
+              <td>
+                <div className="row-actions">
+                  <button
+                    onClick={() => onCalculate?.(opportunity)}
+                    type="button"
+                  >
+                    去计算
+                  </button>
+                  <button
+                    onClick={() => onLiquidation?.(opportunity)}
+                    type="button"
+                  >
+                    看爆仓
+                  </button>
+                </div>
               </td>
             </tr>
           ))}

@@ -58,3 +58,29 @@ export type FundingRatesResponse = {
   errors: Record<string, string>;
   data: FundingRate[];
 };
+
+export type ActiveTab = "scanner" | "calculator" | "liquidation";
+
+export type CalculatorSeed = {
+  symbol: string;
+  legA: ArbOpportunity["legA"];
+  legB: ArbOpportunity["legB"];
+  notional: number;
+  cycles: number;
+  intervalHours: number;
+  slippageBps: number;
+};
+
+export type LiquidationSeed = {
+  symbol: string;
+  markPrice: number;
+  legA: {
+    side: Side;
+  };
+  legB: {
+    side: Side;
+  };
+  leverage: number;
+  margin: number;
+  maintMarginRate: number;
+};

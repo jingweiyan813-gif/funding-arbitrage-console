@@ -9,7 +9,15 @@ type SortMode = "spread" | "netEdge";
 
 const AUTO_REFRESH_MS = 30_000;
 
-export function ScannerScreen() {
+type ScannerScreenProps = {
+  onCalculate: (opportunity: ArbOpportunity) => void;
+  onLiquidation: (opportunity: ArbOpportunity) => void;
+};
+
+export function ScannerScreen({
+  onCalculate,
+  onLiquidation
+}: ScannerScreenProps) {
   const [sort, setSort] = useState<SortMode>("spread");
   const [includeLowLiquidity, setIncludeLowLiquidity] = useState(false);
   const [source, setSource] = useState<ApiSource>("mock");
@@ -173,7 +181,11 @@ export function ScannerScreen() {
         {isLoading ? (
           <div className="loading-state">正在加载 Scanner 数据...</div>
         ) : (
-          <OpportunityTable opportunities={opportunities} />
+          <OpportunityTable
+            onCalculate={onCalculate}
+            onLiquidation={onLiquidation}
+            opportunities={opportunities}
+          />
         )}
       </section>
     </main>

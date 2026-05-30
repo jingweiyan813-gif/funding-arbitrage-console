@@ -1,5 +1,9 @@
 import { Router, type NextFunction, type Request, type Response } from "express";
 import {
+  closePaperPositionPair,
+  openPaperArbitragePosition
+} from "../services/paperTrading.js";
+import {
   getAccount,
   listFundingSettlements,
   listLedgerEvents,
@@ -94,3 +98,28 @@ paperRouter.get(
     }
   }
 );
+
+
+paperRouter.post("/open", async (req: Request, res: Response) => {
+  try {
+    const result = await openPaperArbitragePosition(req.body);
+    res.json({ ok: true, data: result });
+  } catch (error) {
+    res.status(400).json({
+      ok: false,
+      error: error instanceof Error ? error.message : "Unknown paper open error"
+    });
+  }
+});
+
+paperRouter.post("/close", async (req: Request, res: Response) => {
+  try {
+    const result = await closePaperPositionPair(req.body);
+    res.json({ ok: true, data: result });
+  } catch (error) {
+    res.status(400).json({
+      ok: false,
+      error: error instanceof Error ? error.message : "Unknown paper close error"
+    });
+  }
+});

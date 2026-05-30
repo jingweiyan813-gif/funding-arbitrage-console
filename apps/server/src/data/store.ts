@@ -148,6 +148,61 @@ export async function listLedgerEvents(): Promise<LedgerEvent[]> {
   return [...tradeEvents, ...fundingEvents].sort((a, b) => b.time - a.time);
 }
 
+
+export async function updateAccount(account: PaperAccount): Promise<PaperAccount> {
+  const store = await getStore();
+  const nextStore: PaperStore = { ...store, account };
+  await saveStore(nextStore);
+  return account;
+}
+
+export async function addPositions(
+  positions: PaperPosition[]
+): Promise<PaperPosition[]> {
+  const store = await getStore();
+  const nextStore: PaperStore = {
+    ...store,
+    positions: [...store.positions, ...positions]
+  };
+  await saveStore(nextStore);
+  return positions;
+}
+
+export async function updatePositions(
+  positions: PaperPosition[]
+): Promise<PaperPosition[]> {
+  const store = await getStore();
+  const positionById = new Map(
+    positions.map((position) => [position.id, position] as const)
+  );
+  const nextStore: PaperStore = {
+    ...store,
+    positions: store.positions.map(
+      (position) => positionById.get(position.id) ?? position
+    )
+  };
+  await saveStore(nextStore);
+  return positions;
+}
+
+export async function addTrades(trades: Trade[]): Promise<Trade[]> {
+  const store = await getStore();
+  const nextStore: PaperStore = {
+    ...store,
+    trades: [...store.trades, ...trades]
+  };
+  await saveStore(nextStore);
+  return trades;
+}
+
+export async function getPositionsByIds(
+  ids: string[]
+): Promise<PaperPosition[]> {
+  const store = await getStore();
+  const idSet = new Set(ids);
+  return store.positions.filter((position) => idSet.has(position.id));
+}
+
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {
   return error instanceof Error && "code" in error;
 }

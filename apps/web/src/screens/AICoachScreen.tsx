@@ -94,9 +94,9 @@ export function AICoachScreen() {
     <main className="scanner-screen coach-screen">
       <section className="dashboard-hero coach-hero">
         <div>
-          <span className="section-kicker">AI Agent Layer</span>
-          <h2>AI 套利教练</h2>
-          <p>解释机会、识别陷阱、生成模拟计划和复盘总结。没有 LLM key 时使用规则 Agent，有 key 时可切换为大模型 Agent。</p>
+          <span className="section-kicker">Agent 层</span>
+          <h2>AI 教练 · AI Coach</h2>
+          <p>用于解释机会、识别陷阱、生成模拟计划和复盘总结。未配置大模型 key 时使用规则 Agent，配置后可切换为大模型 Agent。</p>
         </div>
       </section>
 

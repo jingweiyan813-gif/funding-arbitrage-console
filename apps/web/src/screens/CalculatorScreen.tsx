@@ -110,8 +110,8 @@ export function CalculatorScreen({ seed }: CalculatorScreenProps) {
     <main className="scanner-screen">
       <section className="toolbar">
         <div>
-          <span className="section-kicker">Profit Calculator</span>
-          <h2>净收益计算器</h2>
+          <span className="section-kicker">收益计算</span>
+          <h2>收益计算 · Calculator</h2>
           <p className="section-copy">
             使用 core 计算层估算跨所资金费收入、开平仓手续费、
             <Tooltip
@@ -135,74 +135,74 @@ export function CalculatorScreen({ seed }: CalculatorScreenProps) {
         <div className="form-card">
           <div className="form-grid">
             <FormField
-              label="symbol"
+              label="币种"
               onChange={(value) => update("symbol", value)}
               value={form.symbol}
             />
             <FormField
-              label="notional"
+              label="名义本金"
               onChange={(value) => update("notional", toNumber(value))}
               type="number"
               value={form.notional}
             />
             <FormField
-              label="cycles"
+              label="结算轮数"
               onChange={(value) => update("cycles", toNumber(value))}
               type="number"
               value={form.cycles}
             />
             <FormField
-              label="intervalHours"
+              label="结算周期小时"
               onChange={(value) => update("intervalHours", toNumber(value))}
               type="number"
               value={form.intervalHours}
             />
             <FormField
-              label="legA exchange"
+              label="A 腿交易所"
               onChange={(value) => update("legAExchange", value)}
               value={form.legAExchange}
             />
             <SideSelect
-              label="legA side"
+              label="A 腿方向"
               onChange={(value) => update("legASide", value)}
               value={form.legASide}
             />
             <FormField
-              label="legA rate"
+              label="A 腿资金费率"
               onChange={(value) => update("legARate", toNumber(value))}
               type="number"
               value={form.legARate}
             />
             <FormField
-              label="feeRateA"
+              label="A 腿手续费率"
               onChange={(value) => update("feeRateA", toNumber(value))}
               type="number"
               value={form.feeRateA}
             />
             <FormField
-              label="legB exchange"
+              label="B 腿交易所"
               onChange={(value) => update("legBExchange", value)}
               value={form.legBExchange}
             />
             <SideSelect
-              label="legB side"
+              label="B 腿方向"
               onChange={(value) => update("legBSide", value)}
               value={form.legBSide}
             />
             <FormField
-              label="legB rate"
+              label="B 腿资金费率"
               onChange={(value) => update("legBRate", toNumber(value))}
               type="number"
               value={form.legBRate}
             />
             <FormField
-              label="feeRateB"
+              label="B 腿手续费率"
               onChange={(value) => update("feeRateB", toNumber(value))}
               type="number"
               value={form.feeRateB}
             />
             <label className="form-field">
-              <span>feeMode</span>
+              <span>手续费模式</span>
               <select
                 onChange={(event) =>
                   updateFeeMode(event.currentTarget.value as FeeMode)
@@ -216,7 +216,7 @@ export function CalculatorScreen({ seed }: CalculatorScreenProps) {
             </label>
             <FormField
               hint="按开仓和平仓各计算一次"
-              label="slippageBps"
+              label="滑点 bps"
               onChange={(value) => update("slippageBps", toNumber(value))}
               type="number"
               value={form.slippageBps}
@@ -251,8 +251,8 @@ function SideSelect({
         onChange={(event) => onChange(event.currentTarget.value as Side)}
         value={value}
       >
-        <option value="long">long</option>
-        <option value="short">short</option>
+        <option value="long">多头 long</option>
+        <option value="short">空头 short</option>
       </select>
     </label>
   );
@@ -282,19 +282,19 @@ function toNumber(value: string): number {
 
 function validateForm(form: CalculatorForm): string | null {
   if (!form.symbol.trim()) {
-    return "symbol 不能为空。";
+    return "币种不能为空。";
   }
 
   if (form.notional < 0) {
-    return "notional 不能为负数。";
+    return "名义本金不能为负数。";
   }
 
   if (form.cycles <= 0) {
-    return "cycles 必须大于 0。";
+    return "结算轮数必须大于 0。";
   }
 
   if (form.intervalHours <= 0) {
-    return "intervalHours 必须大于 0。";
+    return "结算周期小时必须大于 0。";
   }
 
   if (form.feeRateA < 0 || form.feeRateB < 0 || form.slippageBps < 0) {

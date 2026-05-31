@@ -7,8 +7,8 @@ export function EducationScreen() {
     <main className="scanner-screen education-dashboard">
       <section className="dashboard-hero">
         <div>
-          <span className="section-kicker">Education Layer</span>
-          <h2>Learn before simulating</h2>
+          <span className="section-kicker">学习说明</span>
+          <h2>学习说明 · Education</h2>
           <p>资金费率套利不是稳赚。这里保留 Phase 1 的学习说明和风险提示，帮助把收益、费用和爆仓风险放在同一张图里理解。</p>
         </div>
       </section>

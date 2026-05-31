@@ -82,8 +82,8 @@ export function OpportunityMiningScreen({
     <main className="scanner-screen mining-screen">
       <section className="dashboard-hero mining-hero">
         <div>
-          <span className="section-kicker">Opportunity Mining</span>
-          <h2>机会挖掘</h2>
+          <span className="section-kicker">机会挖掘</span>
+          <h2>机会挖掘 · Opportunity Mining</h2>
           <p>
             全市场扫描极端资金费率，并用可对冲性闸门区分真机会、有条件机会和陷阱。
           </p>
@@ -103,7 +103,7 @@ export function OpportunityMiningScreen({
       </section>
 
       {source === "fallback_snapshot" ? (
-        <div className="notice notice--mock">当前展示 fallback snapshot，用于保证演示流程。真实行情读取链路已接入。</div>
+        <div className="notice notice--mock">当前展示 FALLBACK，用于保证演示流程。真实行情读取链路已接入。</div>
       ) : null}
       {source === "partial" ? (
         <div className="notice notice--partial">
@@ -169,8 +169,8 @@ function Metric({ label, value, tone }: { label: string; value: string | number;
 
 function sourceLabel(source: MiningSource): string {
   if (source === "fallback_snapshot") {
-    return "fallback snapshot";
+    return "FALLBACK";
   }
 
-  return source;
+  return source === "live" ? "LIVE" : "PARTIAL";
 }

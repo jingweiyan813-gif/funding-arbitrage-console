@@ -122,9 +122,13 @@ function toArbOpportunity(opportunity: MinedOpportunity): ArbOpportunity {
     liquidity: opportunity.hedgeability.liquidityOk ? "mid" : "low",
     intervalHours: opportunity.intervalHours,
     fakeOpportunity: opportunity.category === "trap",
-    direction: receiveSide + " " + opportunity.exchange + " / " + hedgeSide + " hedge leg",
+    direction: formatSide(receiveSide) + " " + opportunity.exchange + " / " + formatSide(hedgeSide) + " 对冲腿",
     strategyType: opportunity.strategyType
   };
+}
+
+function formatSide(side: "long" | "short"): string {
+  return side === "long" ? "多头" : "空头";
 }
 
 function fallbackHedgeExchange(exchange: MinedOpportunity["exchange"]): MinedOpportunity["exchange"] {

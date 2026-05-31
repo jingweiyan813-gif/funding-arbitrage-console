@@ -10,19 +10,19 @@ export function RightRail({ fakeCount, source }: RightRailProps) {
   return (
     <aside className="right-rail">
       <section className="rail-card rail-card--tip">
-        <span>Pro Tip</span>
+        <span>提示</span>
         <h3>净费差优先于费差</h3>
-        <p>费差最大不代表利润最大。先看 netEdge，再进入模拟盘观察手续费、滑点和强平风险。</p>
+        <p>费差最大不代表利润最大。先看净费差，再进入模拟盘观察手续费、滑点和强平风险。</p>
       </section>
       <section className="rail-card rail-card--risk">
-        <span>Risk Alert</span>
-        <h3>{fakeCount} fake opportunities</h3>
-        <p>netEdge 小于等于 0 的机会会被标记为假机会，适合拿来教学演示扣费后的反转。</p>
+        <span>风险提醒</span>
+        <h3>{fakeCount} 个假机会</h3>
+        <p>净费差小于等于 0 的机会会被标记为假机会，适合演示扣费后的收益反转。</p>
       </section>
       <section className="rail-card rail-card--simulator">
-        <span>Profit Simulator</span>
-        <h3>Paper first</h3>
-        <p>Scanner 中点击“模拟建仓”，会带入 Paper Trading 面板。全程不接 API Key、不真实下单。</p>
+        <span>模拟验证</span>
+        <h3>先做纸面模拟</h3>
+        <p>在标准教学中点击“模拟建仓”，会带入模拟盘面板。全程不接 API Key、不真实下单。</p>
         <DataSourceBadge source={source} />
       </section>
     </aside>

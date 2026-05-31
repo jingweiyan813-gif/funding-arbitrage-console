@@ -39,7 +39,7 @@ export function CoachPanel({ result, isLoading, errorMessage, source, provider, 
         <span className={"coach-risk-badge coach-risk-badge--" + result.riskLevel}>{result.riskLevel}</span>
       </div>
       {warning ? <div className="coach-warning">大模型暂不可用，已使用规则 Agent 兜底。</div> : null}
-      {model && source === "llm" ? <p className="coach-model">Model: {model}</p> : null}
+      {model && source === "llm" ? <p className="coach-model">模型：{model}</p> : null}
       <p className="coach-summary">{result.summary}</p>
       <div className="coach-list-grid">
         <div>

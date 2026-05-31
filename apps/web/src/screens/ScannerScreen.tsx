@@ -103,44 +103,42 @@ export function ScannerScreen({
     <main className="scanner-screen dashboard-screen">
       <section className="dashboard-hero">
         <div>
-          <span className="section-kicker">Opportunities Dashboard</span>
-          <h2>Funding Rate Arbitrage Opportunities</h2>
+          <span className="section-kicker">标准教学</span>
+          <h2>标准教学 · Standard Learning</h2>
           <p>
-            Real-time analysis of cross-exchange rate differentials. The table
-            prioritizes spread, net edge, funding cadence, and paper-trading
-            readiness.
+            实时分析跨交易所资金费率差，优先展示费差、净费差、结算周期和模拟盘可用性。
           </p>
         </div>
-        <div className="dashboard-filter-row" aria-label="Static filters">
-          <button type="button">All Assets</button>
-          <button type="button">Exchanges</button>
+        <div className="dashboard-filter-row" aria-label="静态筛选">
+          <button type="button">全部资产</button>
+          <button type="button">交易所</button>
           <button className="dashboard-apply-button" type="button">
-            Apply Filters
+            应用筛选
           </button>
         </div>
       </section>
 
       <section className="dashboard-metric-grid">
         <DashboardMetricCard
-          detail="Cross-exchange average"
-          label="Average Spread"
+          detail="跨交易所平均值"
+          label="平均费差"
           tone="positive"
           value={formatPercent(stats.averageSpread, 4)}
         />
         <DashboardMetricCard
-          detail="USDT perpetuals"
-          label="Market Context"
-          value={includeLowLiquidity ? "All liquidity" : "Mid+ liquidity"}
+          detail="USDT 永续合约"
+          label="市场范围"
+          value={includeLowLiquidity ? "全部流动性" : "中高流动性"}
         />
         <DashboardMetricCard
-          detail={`${stats.fakeCount} fake after fees`}
-          label="Opportunity Count"
+          detail={`${stats.fakeCount} 个扣费后为负`}
+          label="机会数量"
           tone={stats.opportunityCount > 0 ? "positive" : "warning"}
           value={stats.opportunityCount}
         />
         <DashboardMetricCard
-          detail={updatedAt ? `Updated ${formatDateTime(updatedAt)}` : "Waiting"}
-          label="Data Source"
+          detail={updatedAt ? `更新于 ${formatDateTime(updatedAt)}` : "等待中"}
+          label="数据来源"
           value={<DataSourceBadge source={source} />}
         />
       </section>
@@ -214,7 +212,7 @@ export function ScannerScreen({
               </div>
             </div>
             {isLoading ? (
-              <div className="loading-state">正在加载 Scanner 数据...</div>
+              <div className="loading-state">正在加载标准教学数据...</div>
             ) : (
               <OpportunityTable
                 onCalculate={onCalculate}

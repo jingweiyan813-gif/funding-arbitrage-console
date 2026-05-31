@@ -22,7 +22,7 @@ export function MiningFilters({
   return (
     <section className="mining-filters">
       <label>
-        <span>threshold</span>
+        <span>极端阈值</span>
         <input
           min="0"
           step="0.0001"
@@ -33,7 +33,7 @@ export function MiningFilters({
         <small>0.003 = 0.3%/日</small>
       </label>
       <label>
-        <span>limit</span>
+        <span>返回数量</span>
         <input
           min="1"
           step="1"

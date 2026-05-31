@@ -166,8 +166,8 @@ export function PaperTradingScreen({ seed }: PaperTradingScreenProps) {
     <main className="scanner-screen">
       <section className="toolbar">
         <div>
-          <span className="section-kicker">Paper Trading</span>
-          <h2>模拟盘</h2>
+          <span className="section-kicker">模拟盘</span>
+          <h2>模拟盘 · Paper Trading</h2>
           <p className="section-copy">
             这是纸面交易模拟盘，不接 API Key、不连接真实账户、不执行真实下单。系统只使用虚拟账户和公开行情。
           </p>
@@ -229,15 +229,15 @@ export function PaperTradingScreen({ seed }: PaperTradingScreenProps) {
             </div>
           </div>
           <div className="form-grid paper-open-form">
-            <FormField label="notional" onChange={setNotional} type="number" value={notional} />
-            <FormField label="leverage" onChange={setLeverage} type="number" value={leverage} />
-            <FormField label="slippageBps" onChange={setSlippageBps} type="number" value={slippageBps} />
-            <FormField label="feeRate" onChange={setFeeRate} type="number" value={feeRate} />
+            <FormField label="名义本金" onChange={setNotional} type="number" value={notional} />
+            <FormField label="杠杆" onChange={setLeverage} type="number" value={leverage} />
+            <FormField label="滑点 bps" onChange={setSlippageBps} type="number" value={slippageBps} />
+            <FormField label="手续费率" onChange={setFeeRate} type="number" value={feeRate} />
             {isCashCarrySeed ? (
               <>
-                <FormField label="borrowRatePerDay" onChange={setBorrowRatePerDay} type="number" value={borrowRatePerDay} />
-                <FormField label="holdingDays" onChange={setHoldingDays} type="number" value={holdingDays} />
-                <FormField label="basisPnl" onChange={setBasisPnl} type="number" value={basisPnl} />
+                <FormField label="每日借币利率" onChange={setBorrowRatePerDay} type="number" value={borrowRatePerDay} />
+                <FormField label="持有天数" onChange={setHoldingDays} type="number" value={holdingDays} />
+                <FormField label="基差盈亏" onChange={setBasisPnl} type="number" value={basisPnl} />
               </>
             ) : null}
           </div>
@@ -260,7 +260,7 @@ export function PaperTradingScreen({ seed }: PaperTradingScreenProps) {
           </button>
         </div>
         {openPositions.length === 0 ? (
-          <div className="empty-state">暂无模拟持仓，请从 Scanner 选择机会后模拟建仓。</div>
+          <div className="empty-state">暂无模拟持仓，请从机会挖掘或标准教学选择机会后模拟建仓。</div>
         ) : (
           <div className="positions-grid">
             {openPositions.map((position) => (

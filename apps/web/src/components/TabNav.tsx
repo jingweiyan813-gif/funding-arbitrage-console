@@ -1,10 +1,10 @@
 import type { ActiveTab } from "../types";
 
 const tabs: Array<{ id: ActiveTab; label: string }> = [
-  { id: "scanner", label: "Scanner" },
-  { id: "calculator", label: "Calculator" },
-  { id: "liquidation", label: "Liquidation" },
-  { id: "paper", label: "Paper Trading" }
+  { id: "scanner", label: "标准教学" },
+  { id: "calculator", label: "收益计算" },
+  { id: "liquidation", label: "爆仓风险" },
+  { id: "paper", label: "模拟盘" }
 ];
 
 type TabNavProps = {
@@ -14,7 +14,7 @@ type TabNavProps = {
 
 export function TabNav({ activeTab, onChange }: TabNavProps) {
   return (
-    <nav className="tab-nav" aria-label="Funding Arbitrage views">
+    <nav className="tab-nav" aria-label="资金费率套利视图">
       {tabs.map((tab) => (
         <button
           className={activeTab === tab.id ? "active" : ""}

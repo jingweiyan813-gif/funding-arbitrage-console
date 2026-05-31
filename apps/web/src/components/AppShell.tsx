@@ -10,15 +10,15 @@ type AppShellProps = {
 };
 
 const titleByTab: Record<ActiveTab, string> = {
-  opportunityMining: "Opportunity Mining",
-  scanner: "Standard Learning",
-  calculator: "Profit Calculator",
-  liquidation: "Liquidation Risk",
-  paper: "Paper Trading",
-  monitor: "Monitor & Alerts",
-  liveAccount: "Live Account",
-  education: "Education Layer",
-  aiCoach: "AI Coach"
+  opportunityMining: "机会挖掘 · Opportunity Mining",
+  scanner: "标准教学 · Standard Learning",
+  calculator: "收益计算 · Calculator",
+  liquidation: "爆仓风险 · Liquidation",
+  paper: "模拟盘 · Paper Trading",
+  monitor: "监控 / 告警 · Monitor",
+  liveAccount: "真实账户 · Coming Soon",
+  education: "学习说明 · Education",
+  aiCoach: "AI 教练 · AI Coach"
 };
 
 export function AppShell({ activeTab, children, onNavigate }: AppShellProps) {

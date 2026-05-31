@@ -3,9 +3,9 @@ export function LiveAccountComingSoon() {
     <main className="scanner-screen placeholder-screen">
       <section className="placeholder-hero">
         <span className="section-kicker">账本层</span>
-        <h2>真实账户</h2>
+        <h2>真实账户 · Coming Soon</h2>
         <p>
-          Coming Soon。当前版本只提供学习、计算和纸面交易模拟，不连接真实账户，也不执行真实交易。
+          即将开放。当前版本只提供学习、计算和纸面交易模拟，不连接真实账户，也不执行真实交易。
         </p>
       </section>
 

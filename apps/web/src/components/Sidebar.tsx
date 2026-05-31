@@ -20,29 +20,29 @@ const navGroups: NavGroup[] = [
   {
     title: "入口层",
     items: [
-      { label: "机会挖掘", tab: "opportunityMining", hint: "Mining" },
-      { label: "标准教学", tab: "scanner", hint: "Scanner" }
+      { label: "机会挖掘", tab: "opportunityMining", hint: "挖掘" },
+      { label: "标准教学", tab: "scanner", hint: "教学" }
     ]
   },
   {
     title: "分析工具层",
     items: [
-      { label: "收益计算", tab: "calculator", hint: "Calculator" },
-      { label: "爆仓风险", tab: "liquidation", hint: "Liquidation" }
+      { label: "收益计算", tab: "calculator", hint: "计算" },
+      { label: "爆仓风险", tab: "liquidation", hint: "强平" }
     ]
   },
   {
     title: "账本层",
     items: [
-      { label: "模拟盘", tab: "paper", hint: "Paper Trading" },
-      { label: "监控 / 告警", tab: "monitor", hint: "Monitor" },
-      { label: "真实账户", tab: "liveAccount", hint: "Coming Soon" }
+      { label: "模拟盘", tab: "paper", hint: "模拟" },
+      { label: "监控 / 告警", tab: "monitor", hint: "提醒" },
+      { label: "真实账户", tab: "liveAccount", hint: "即将开放" }
     ]
   },
   {
     title: "Agent 层",
     items: [
-      { label: "AI 教练", tab: "aiCoach", hint: "Rule-based" }
+      { label: "AI 教练", tab: "aiCoach", hint: "Agent" }
     ]
   }
 ];
@@ -52,9 +52,9 @@ export function Sidebar({ activeTab, onNavigate }: SidebarProps) {
     <aside className="app-sidebar">
       <div className="sidebar-brand">
         <strong>ArbiLearn</strong>
-        <span>Demo Mode Active</span>
+        <span>DEMO 模式已开启</span>
       </div>
-      <nav className="sidebar-nav" aria-label="Dashboard navigation">
+      <nav className="sidebar-nav" aria-label="主导航">
         {navGroups.map((group) => (
           <section className="sidebar-nav-group" key={group.title}>
             <span className="sidebar-group-title">{group.title}</span>
@@ -73,10 +73,10 @@ export function Sidebar({ activeTab, onNavigate }: SidebarProps) {
         ))}
       </nav>
       <div className="sidebar-upgrade-card">
-        <span>Upgrade to Pro</span>
-        <p>Scenario planning and deeper analytics are reserved for future phases.</p>
-        <button type="button">Get Pro</button>
-        <small>Sync Status: Active</small>
+        <span>高级能力预留</span>
+        <p>情景推演和更深度分析会在后续阶段开放。</p>
+        <button type="button">了解路线</button>
+        <small>同步状态：正常</small>
       </div>
     </aside>
   );

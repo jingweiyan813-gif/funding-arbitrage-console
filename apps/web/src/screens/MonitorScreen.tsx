@@ -60,8 +60,8 @@ export function MonitorScreen() {
     <main className="scanner-screen monitor-screen">
       <section className="dashboard-hero monitor-hero">
         <div>
-          <span className="section-kicker">Phase 3 Preview</span>
-          <h2>监控 / 告警</h2>
+          <span className="section-kicker">轻量监控</span>
+          <h2>监控 / 告警 · Monitor</h2>
           <p>
             这是轻量本地监控页面，用现有模拟持仓生成演示级告警。不接 API Key、不连接真实账户、不使用 WebSocket、不发送外部通知。
           </p>
@@ -102,8 +102,8 @@ export function MonitorScreen() {
                 <tr>
                   <th>级别</th>
                   <th>类型</th>
-                  <th>symbol</th>
-                  <th>exchange</th>
+                  <th>币种</th>
+                  <th>交易所</th>
                   <th>说明</th>
                   <th>时间</th>
                 </tr>

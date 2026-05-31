@@ -86,8 +86,8 @@ export function LiquidationScreen({ seed }: LiquidationScreenProps) {
     <main className="scanner-screen">
       <section className="toolbar">
         <div>
-          <span className="section-kicker">Liquidation Check</span>
-          <h2>爆仓风险计算器</h2>
+          <span className="section-kicker">爆仓风险</span>
+          <h2>爆仓风险 · Liquidation</h2>
           <p className="section-copy">
             双腿
             <Tooltip
@@ -123,58 +123,58 @@ export function LiquidationScreen({ seed }: LiquidationScreenProps) {
         <div className="form-card">
           <div className="form-grid">
             <FormField
-              label="symbol"
+              label="币种"
               onChange={(value) => update("symbol", value)}
               value={form.symbol}
             />
             <FormField
-              label="markPrice"
+              label="标记价格"
               onChange={(value) => update("markPrice", toNumber(value))}
               type="number"
               value={form.markPrice}
             />
             <SideSelect
-              label="legA side"
+              label="A 腿方向"
               onChange={(value) => update("legASide", value)}
               value={form.legASide}
             />
             <FormField
-              label="legA leverage"
+              label="A 腿杠杆"
               onChange={(value) => update("legALeverage", toNumber(value))}
               type="number"
               value={form.legALeverage}
             />
             <FormField
-              label="legA margin"
+              label="A 腿保证金"
               onChange={(value) => update("legAMargin", toNumber(value))}
               type="number"
               value={form.legAMargin}
             />
             <FormField
-              label="legA maintMarginRate"
+              label="A 腿维持保证金率"
               onChange={(value) => update("legAMaintMarginRate", toNumber(value))}
               type="number"
               value={form.legAMaintMarginRate}
             />
             <SideSelect
-              label="legB side"
+              label="B 腿方向"
               onChange={(value) => update("legBSide", value)}
               value={form.legBSide}
             />
             <FormField
-              label="legB leverage"
+              label="B 腿杠杆"
               onChange={(value) => update("legBLeverage", toNumber(value))}
               type="number"
               value={form.legBLeverage}
             />
             <FormField
-              label="legB margin"
+              label="B 腿保证金"
               onChange={(value) => update("legBMargin", toNumber(value))}
               type="number"
               value={form.legBMargin}
             />
             <FormField
-              label="legB maintMarginRate"
+              label="B 腿维持保证金率"
               onChange={(value) => update("legBMaintMarginRate", toNumber(value))}
               type="number"
               value={form.legBMaintMarginRate}
@@ -255,8 +255,8 @@ function SideSelect({
         onChange={(event) => onChange(event.currentTarget.value as Side)}
         value={value}
       >
-        <option value="long">long</option>
-        <option value="short">short</option>
+        <option value="long">多头 long</option>
+        <option value="short">空头 short</option>
       </select>
     </label>
   );
@@ -285,23 +285,23 @@ function toNumber(value: string): number {
 
 function validateForm(form: LiquidationForm): string | null {
   if (!form.symbol.trim()) {
-    return "symbol 不能为空。";
+    return "币种不能为空。";
   }
 
   if (form.markPrice <= 0) {
-    return "markPrice 必须大于 0。";
+    return "标记价格必须大于 0。";
   }
 
   if (form.legALeverage <= 0 || form.legBLeverage <= 0) {
-    return "leverage 必须大于 0。";
+    return "杠杆必须大于 0。";
   }
 
   if (form.legAMargin <= 0 || form.legBMargin <= 0) {
-    return "margin 必须大于 0。";
+    return "保证金必须大于 0。";
   }
 
   if (form.legAMaintMarginRate < 0 || form.legBMaintMarginRate < 0) {
-    return "maintMarginRate 不能为负数。";
+    return "维持保证金率不能为负数。";
   }
 
   return null;
